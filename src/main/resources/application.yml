@@ -22,6 +22,8 @@ spring:
       host: localhost
       port: 6379
   security:
+    jwt:
+      secret-key: 29WPDgdInYOCyBMr
     oauth2:
       client:
         registration:

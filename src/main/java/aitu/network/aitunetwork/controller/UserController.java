@@ -1,12 +1,9 @@
 package aitu.network.aitunetwork.controller;
 
 
-import aitu.network.aitunetwork.model.dto.UserDTO;
-import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,11 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
     private final UserService userService;
 
-    // angular -> user ->
-    @GetMapping("/save")
-    public User saveUser(@RequestBody UserDTO userDTO) {
-        return userService.save(userDTO);
+    @GetMapping
+    public String hello() {
+        return "hello";
     }
-    // getUser() -> jwt -> email -> if
-    // frontend -> keycloak -> frontend -> backend(getUser) -> UserRespDto
+
 }
