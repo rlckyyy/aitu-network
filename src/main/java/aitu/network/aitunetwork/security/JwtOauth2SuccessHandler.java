@@ -1,6 +1,6 @@
 package aitu.network.aitunetwork.security;
 
-import jakarta.servlet.http.Cookie;
+import aitu.network.aitunetwork.util.AuthUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +16,7 @@ public class JwtOauth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandl
     public void onAuthenticationSuccess(HttpServletRequest req,
                                         HttpServletResponse res,
                                         Authentication authentication) {
-        String email = authentication.getName();
-        String token = jwtService.generateToken(email);
-        Cookie cookie = new Cookie("authToken", token);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(60 * 60 * 24);
-        res.addCookie(cookie);
+        String token = jwtService.generateToken(authentication.getName());
+        AuthUtil.setCookie(res, token);
     }
 }

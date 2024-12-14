@@ -4,6 +4,7 @@ import aitu.network.aitunetwork.model.dto.LoginRequest;
 import aitu.network.aitunetwork.model.dto.UserDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.service.AuthService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public void login(@RequestBody LoginRequest loginRequest) {
+    public void login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         authService.login(loginRequest);
     }
 
