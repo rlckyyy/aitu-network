@@ -1,21 +1,28 @@
-version: '3.7'
-
 services:
-  postgres:
-    image: postgres:17
-    container_name: aitu-db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+  mongodb:
+    image: mongo
+    container_name: mongo-db
     ports:
-      - "5433:5432"
+      - '27017:27017'
     environment:
-      POSTGRES_DB: aitudb
-      POSTGRES_USER: aituuser
-      POSTGRES_PASSWORD: aitupass
+      MONGO_INITDB_ROOT_USERNAME: aituuser
+      MONGO_INITDB_ROOT_PASSWORD: aitupass
+    volumes:
+      - mongo_data:/data/db
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-ui
+    restart: always
+    ports:
+      - '8081:8081'
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: aituuser
+      ME_CONFIG_MONGODB_ADMINPASSWORD: aitupass
+      ME_CONFIG_MONGODB_URL: mongodb://aituuser:aitupass@mongo:27017/
+      ME_CONFIG_BASICAUTH: false
   redis:
     image: redis
     ports:
-      - "6379:6379"
+      - '6379:6379'
 volumes:
-  postgres_data:
-    driver: local
+  mongo_data:
