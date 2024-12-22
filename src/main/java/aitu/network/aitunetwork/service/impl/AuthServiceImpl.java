@@ -35,14 +35,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void login(LoginRequest loginRequest) {
-        Optional<User> userOptional = userRepository.findUserByEmail(loginRequest.email());
-        if (userOptional.isEmpty()) {
-            throw new EntityNotFoundException(User.class, "email", loginRequest.email());
-        }
-        User user = userOptional.get();
+        User user = userRepository.findUserByEmail(loginRequest.email()).orElseThrow(()-> new EntityNotFoundException(User.class, "email", loginRequest.email()));
         if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
             throw new ConflictException("Password does not match");
         }
+        String token = jwtService.generateToken(user.getUsername());
     }
 
     public boolean isExist(String email) {

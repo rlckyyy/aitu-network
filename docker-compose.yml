@@ -18,7 +18,7 @@ services:
     environment:
       ME_CONFIG_MONGODB_ADMINUSERNAME: aituuser
       ME_CONFIG_MONGODB_ADMINPASSWORD: aitupass
-      ME_CONFIG_MONGODB_URL: mongodb://aituuser:aitupass@mongo:27017/
+      ME_CONFIG_MONGODB_URL: mongodb://aituuser:aitupass@mongodb:27017/
       ME_CONFIG_BASICAUTH: false
   redis:
     image: redis
