@@ -9,21 +9,23 @@ import aitu.network.aitunetwork.model.dto.UserDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.Role;
 import aitu.network.aitunetwork.repository.UserRepository;
-import aitu.network.aitunetwork.security.JwtService;
 import aitu.network.aitunetwork.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
     @Override
     public User registerUser(UserDTO userDTO) {
@@ -35,11 +37,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public void login(LoginRequest loginRequest) {
-        User user = userRepository.findUserByEmail(loginRequest.email()).orElseThrow(()-> new EntityNotFoundException(User.class, "email", loginRequest.email()));
-        if (!passwordEncoder.matches(loginRequest.password(), user.getPassword())) {
-            throw new ConflictException("Password does not match");
-        }
-        String token = jwtService.generateToken(user.getUsername());
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     public boolean isExist(String email) {
