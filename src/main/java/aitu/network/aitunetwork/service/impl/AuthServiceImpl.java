@@ -18,9 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -62,13 +60,6 @@ public class AuthServiceImpl implements AuthService {
                 .password(passwordEncoder.encode(userDTO.password()))
                 .roles(List.of(Role.USER))
                 .build();
-    }
-
-    private static final ThreadLocal<Map<String, String>> cache = ThreadLocal.withInitial(HashMap::new);
-
-    public static void main(String[] args) {
-        cache.get().put("hel", "hel");
-        cache.get().get("hel");
     }
 
 }

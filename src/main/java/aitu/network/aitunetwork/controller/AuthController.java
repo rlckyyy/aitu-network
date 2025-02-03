@@ -29,5 +29,4 @@ public class AuthController {
     public void login(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
         authService.login(loginRequest, request);
     }
-
 }
