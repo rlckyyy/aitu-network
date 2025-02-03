@@ -8,28 +8,6 @@ spring:
   data:
     mongodb:
       uri: mongodb://aituuser:aitupass@localhost:27017/aitunetwork?authSource=admin
-
     redis:
       host: localhost
       port: 6379
-#  security:
-#    jwt:
-#      secret-key: 29WPDgdInYOCyBMr
-#    oauth2:
-#      client:
-#        registration:
-#          google:
-#            provider: google
-#            client-id: ${GOOGLE_CLIENT_ID}
-#            client-secret: ${GOOGLE_CLIENT_SECRET}
-#            redirect-uri: "http://localhost:8080/login/oauth2/code/google"
-#            scope:
-#              - openid
-#              - profile
-#              - email
-#        provider:
-#          google:
-#            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
-#            token-uri: https://oauth2.googleapis.com/token
-#            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-#            user-name-attribute: sub
