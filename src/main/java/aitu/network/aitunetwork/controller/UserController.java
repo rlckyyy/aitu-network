@@ -5,9 +5,8 @@ import aitu.network.aitunetwork.common.annotations.CurrentUser;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,4 +19,13 @@ public class UserController {
         return user;
     }
 
+    @PatchMapping("/profile/photo")
+    public User setProfilePhoto(@RequestParam MultipartFile file) {
+        userService.setProfilePhoto(file);
+        return null;
+    }
 }
+// TODO friendship-system
+// TODO add-delete-td-friend
+// TODO POSTING SYSTEM and PROFILE
+

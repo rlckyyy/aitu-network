@@ -21,5 +21,26 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: aitupass
       ME_CONFIG_MONGODB_URL: mongodb://aituuser:aitupass@mongodb:27017/
       ME_CONFIG_BASICAUTH: false
+  neo4j:
+    container_name: neo4j
+    image: neo4j:latest
+    ports:
+      - '7474:7474'
+      - '7687:7687'
+    environment:
+      - NEO4J_AUTH=neo4j/neopass
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4J_PLUGINS=["apoc", "graph-data-science"]
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_import:/var/lib/neo4j/import
+      - neo4j_plugins:/plugins
 volumes:
   mongo_data:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_import:
+  neo4j_plugins:

@@ -23,4 +23,5 @@ public class User implements Serializable {
     @JsonIgnore
     private String password;
     private List<Role> roles;
+    private String photoPath;
 }
