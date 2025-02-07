@@ -1,4 +1,4 @@
-package aitu.network.aitunetwork.security;
+package aitu.network.aitunetwork.config.security;
 
 import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
 import aitu.network.aitunetwork.model.entity.User;
@@ -17,6 +17,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findUserByEmail(email)
-                .map(CustomUserDetails::new).orElseThrow(() -> new EntityNotFoundException(User.class, email));
+                .map(CustomUserDetails::new)
+                .orElseThrow(() -> new EntityNotFoundException(User.class, email));
     }
 }

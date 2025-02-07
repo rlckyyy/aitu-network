@@ -1,21 +1,21 @@
 package aitu.network.aitunetwork.service.impl;
 
 
-import aitu.network.aitunetwork.common.exception.UserAlreadyExistsException;
+import aitu.network.aitunetwork.common.exception.ConflictException;
+import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
+import aitu.network.aitunetwork.model.dto.JwtResponse;
 import aitu.network.aitunetwork.model.dto.LoginRequest;
 import aitu.network.aitunetwork.model.dto.UserDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.Role;
 import aitu.network.aitunetwork.repository.UserRepository;
+import aitu.network.aitunetwork.config.security.CustomUserDetailsService;
+import aitu.network.aitunetwork.config.security.JwtService;
 import aitu.network.aitunetwork.service.AuthService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,29 +26,39 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     @Override
     public User registerUser(UserDTO userDTO) {
         if (isExist(userDTO.email())) {
-            throw new UserAlreadyExistsException("User with email " + userDTO.email() + " already exists");
+            throw new ConflictException("User with email " + userDTO.email() + " already exists");
         }
         return userRepository.save(mapUserDTOToUser(userDTO));
     }
 
     @Override
-    public void login(LoginRequest loginRequest, HttpServletRequest request) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password()));
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        if (request.getSession(false) == null) {
-            request.getSession(true);
-        }
-
-        request.getSession().setAttribute(
-                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
-                SecurityContextHolder.getContext()
-        );
+    public JwtResponse login(LoginRequest request) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                request.email(),
+                request.password()
+        ));
+        var user = customUserDetailsService.
+                loadUserByUsername(request.email());
+        var jwt = jwtService.generateToken(user);
+        return new JwtResponse(jwt);
     }
 
+
+
+    @Override
+    public User getByUsername(String email) {
+        return userRepository
+                .findUserByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException(User.class, email));
+    }
+
+    @Override
     public boolean isExist(String email) {
         return userRepository.findUserByEmail(email).isPresent();
     }

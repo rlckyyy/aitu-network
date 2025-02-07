@@ -1,8 +1,5 @@
 server:
   port: 8080
-  servlet:
-    session:
-      timeout: 60m
 
 logging:
   level:
@@ -11,6 +8,6 @@ spring:
   data:
     mongodb:
       uri: mongodb://aituuser:aitupass@localhost:27017/aitunetwork?authSource=admin
-    redis:
-      host: localhost
-      port: 6379
+
+token:
+  key: 53A73E5F1C4E0A2D3B5F2D784E6A1B423D6F247D1F6E5C3A596D635A75327855

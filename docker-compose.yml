@@ -21,29 +21,5 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: aitupass
       ME_CONFIG_MONGODB_URL: mongodb://aituuser:aitupass@mongodb:27017/
       ME_CONFIG_BASICAUTH: false
-  redis:
-    image: redis
-    ports:
-      - '6379:6379'
-#  clickhouse:
-#    image: clickhouse/clickhouse-server:24.3.6
-#    container_name: clickhouse
-#    ulimits:
-#      nofile:
-#        soft: 262144
-#        hard: 262144
-#    ports:
-#      - "8123:8123"
-#      - "9000:9000"
-#    volumes:
-#      - clickhouse_data:/var/lib/clickhouse
-#      - clickhouse_logs:/var/log/clickhouse-server
-#    cap_add:
-#      - SYS_NICE
-#      - NET_ADMIN
-#      - IPC_LOCK
-#      - SYS_PTRACE
 volumes:
   mongo_data:
-#  clickhouse_data:
-#  clickhouse_logs:
