@@ -12,6 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
     private final CurrentUserMethodResolver userMethodResolver;
+
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(userMethodResolver);
