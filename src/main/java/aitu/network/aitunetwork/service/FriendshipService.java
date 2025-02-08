@@ -17,7 +17,7 @@ import static aitu.network.aitunetwork.model.enums.FriendRequestStatus.*;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class FriendRequestService {
+public class FriendshipService {
     private final FriendRequestRepository friendRequestRepository;
     private final UserService userService;
 
