@@ -23,6 +23,6 @@ public class User implements Serializable {
     @JsonIgnore
     private String password;
     private List<Role> roles;
-    private List<User> friendList;
+    private List<String> friendList;
     private String photoPath;
 }

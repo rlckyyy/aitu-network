@@ -39,6 +39,9 @@ public class FriendshipService {
     }
 
     public FriendRequest sendFriendRequest(String id) {
+        if (id == null || id.isBlank()) {
+            throw new ConflictException("user id is null");
+        }
         var user = userService.getCurrentUser();
         var req = FriendRequest.builder()
                 .receiverId(id)
@@ -64,6 +67,9 @@ public class FriendshipService {
     }
 
     public void deleteRequest(String requestId) {
+        if (requestId == null || requestId.isBlank()) {
+            throw new ConflictException("requestId is null");
+        }
         var currentUser = userService.getCurrentUser();
         var friendRequest = friendRequestRepository.findById(requestId).orElseThrow(() -> new EntityNotFoundException(FriendRequest.class, requestId));
         if (!currentUser.getId().equals(friendRequest.getSenderId())) {
@@ -74,20 +80,26 @@ public class FriendshipService {
 
     // person will get info about his requests [id1,id2,id3] he should respond
     // now write
+    // relucky777 -> relucky
+    // relucky777 sender
+    // relucky receiver
+    //
     public FriendRequest respondRequest(String requestId, FriendRequestStatus status) {
-        var user = userService.getCurrentUser();
-        FriendRequest request = friendRequestRepository.findById(requestId).orElseThrow(() -> new EntityNotFoundException(FriendRequest.class, requestId));
-        if (!request.getReceiverId().equals(user.getId())) {
-            throw new ConflictException("User is not for this user");
+        FriendRequest request = friendRequestRepository
+                .findById(requestId)
+                .orElseThrow(() -> new EntityNotFoundException(FriendRequest.class, requestId));
+        var receiver = userService.getCurrentUser();
+        var sender = userService.getById(request.getSenderId());
+        if (receiver.getId().equals(sender.getId())) {
+            throw new ConflictException("Friend request is not for the owner user");
         }
         if (PENDING.equals(status)) {
             throw new ConflictException("request respond can not be PENDING");
         }
         if (ACCEPTED.equals(status)) {
-            User sender = userService.getById(request.getSenderId());
-            sender.getFriendList().add(user);
-            user.getFriendList().add(sender);
-            userService.save(user);
+            sender.getFriendList().add(receiver.getId());
+            receiver.getFriendList().add(sender.getId());
+            userService.save(receiver);
             userService.save(sender);
         }
         request.setStatus(status);

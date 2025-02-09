@@ -3,20 +3,21 @@ package aitu.network.aitunetwork.service;
 
 import aitu.network.aitunetwork.common.exception.ConflictException;
 import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
+import aitu.network.aitunetwork.config.security.CustomUserDetailsService;
+import aitu.network.aitunetwork.config.security.JwtService;
 import aitu.network.aitunetwork.model.dto.JwtResponse;
 import aitu.network.aitunetwork.model.dto.LoginRequest;
 import aitu.network.aitunetwork.model.dto.UserDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.Role;
 import aitu.network.aitunetwork.repository.UserRepository;
-import aitu.network.aitunetwork.config.security.CustomUserDetailsService;
-import aitu.network.aitunetwork.config.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -63,6 +64,7 @@ public class AuthService {
                 .username(userDTO.username())
                 .password(passwordEncoder.encode(userDTO.password()))
                 .roles(List.of(Role.USER))
+                .friendList(new ArrayList<>())
                 .build();
     }
 

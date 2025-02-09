@@ -54,8 +54,17 @@ public class UserService {
     }
 
     public void deleteFriendById(String userId) {
+        if (userId == null || userId.isBlank()) {
+            throw new ConflictException("User id is empty or null");
+        }
         User user = getCurrentUser();
-        user.getFriendList().removeIf(u -> u.getId().equals(userId));
+        if (user.getFriendList() == null || user.getFriendList().isEmpty()) {
+            throw new ConflictException("Friend List is empty");
+        }
+        boolean removed = user.getFriendList().removeIf(userId::equals);
+        if (!removed) {
+            throw new ConflictException("User doesnt have user with such id");
+        }
         userRepository.save(user);
     }
 

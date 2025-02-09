@@ -1,5 +1,7 @@
 package aitu.network.aitunetwork.controller.handler;
 
+import aitu.network.aitunetwork.common.exception.ConflictException;
+import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -23,6 +25,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest request) {
         ProblemDetail problemDetail = ProblemDetail
                 .forStatusAndDetail(HttpStatusCode.valueOf(409), e.getLocalizedMessage());
+        problemDetail.setInstance(URI.create(getPath(request)));
+        return problemDetail;
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ProblemDetail handleEntityNotFoundException(EntityNotFoundException e,
+                                                       WebRequest request) {
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, e.getLocalizedMessage());
+        problemDetail.setInstance(URI.create(getPath(request)));
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    public ProblemDetail handleConflictException(ConflictException e,
+                                                 WebRequest request) {
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getLocalizedMessage());
         problemDetail.setInstance(URI.create(getPath(request)));
         return problemDetail;
     }
