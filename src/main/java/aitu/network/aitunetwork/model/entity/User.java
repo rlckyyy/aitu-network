@@ -4,6 +4,7 @@ import aitu.network.aitunetwork.model.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
@@ -19,6 +20,7 @@ public class User implements Serializable {
     @Id
     private String id;
     private String username;
+    @Indexed(unique = true)
     private String email;
     @JsonIgnore
     private String password;
@@ -26,7 +28,7 @@ public class User implements Serializable {
     private List<String> friendList;
     private String photoPath;
 
-    public void addFriendList(User user){
+    public void addFriendList(User user) {
         if (user != null && user.getFriendList() != null) {
             this.friendList.add(user.getEmail());
             user.getFriendList().add(this.email);
