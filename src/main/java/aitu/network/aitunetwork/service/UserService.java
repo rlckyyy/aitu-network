@@ -58,4 +58,8 @@ public class UserService {
         user.getFriendList().removeIf(u -> u.getId().equals(userId));
         userRepository.save(user);
     }
+
+    public User save(User user) {
+        return userRepository.save(user);
+    }
 }

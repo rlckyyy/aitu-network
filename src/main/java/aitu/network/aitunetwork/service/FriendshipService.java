@@ -3,6 +3,7 @@ package aitu.network.aitunetwork.service;
 import aitu.network.aitunetwork.common.exception.ConflictException;
 import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
 import aitu.network.aitunetwork.model.entity.FriendRequest;
+import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.FriendRequestStatus;
 import aitu.network.aitunetwork.repository.FriendRequestRepository;
 import lombok.RequiredArgsConstructor;
@@ -81,6 +82,13 @@ public class FriendshipService {
         }
         if (PENDING.equals(status)) {
             throw new ConflictException("request respond can not be PENDING");
+        }
+        if (ACCEPTED.equals(status)) {
+            User sender = userService.getById(request.getSenderId());
+            sender.getFriendList().add(user);
+            user.getFriendList().add(sender);
+            userService.save(user);
+            userService.save(sender);
         }
         request.setStatus(status);
         return friendRequestRepository.save(request);

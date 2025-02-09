@@ -38,12 +38,9 @@ public class UserController {
     }
 
     @DeleteMapping("/friend/{userId}")
-    void deleteFriend(@PathVariable String userId){
+    void deleteFriend(@PathVariable String userId) {
         userService.deleteFriendById(userId);
     }
 
 }
-// TODO friendship-system
-// TODO add-delete-td-friend
-// TODO POSTING SYSTEM and PROFILE
 
