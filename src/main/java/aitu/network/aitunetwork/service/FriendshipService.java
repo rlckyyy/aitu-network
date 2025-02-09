@@ -78,31 +78,55 @@ public class FriendshipService {
         friendRequestRepository.delete(friendRequest);
     }
 
-    // person will get info about his requests [id1,id2,id3] he should respond
-    // now write
-    // relucky777 -> relucky
-    // relucky777 sender
-    // relucky receiver
-    //
+
     public FriendRequest respondRequest(String requestId, FriendRequestStatus status) {
-        FriendRequest request = friendRequestRepository
-                .findById(requestId)
-                .orElseThrow(() -> new EntityNotFoundException(FriendRequest.class, requestId));
+        FriendRequest request = findFriendRequestById(requestId);
+
         var receiver = userService.getCurrentUser();
         var sender = userService.getById(request.getSenderId());
+
+        checkIfAlreadyFriends(receiver, sender);
+
+        validateRequestForOwner(receiver, sender, status);
+
+        if (ACCEPTED.equals(status)) {
+            acceptFriendRequest(receiver, sender);
+        }
+        request.setStatus(status);
+        return saveRequest(request);
+    }
+
+    private FriendRequest findFriendRequestById(String requestId) {
+        return friendRequestRepository
+                .findById(requestId)
+                .orElseThrow(() -> new EntityNotFoundException(FriendRequest.class, requestId));
+    }
+
+    private void checkIfAlreadyFriends(User receiver, User sender) {
+        boolean alreadyAreFriends = receiver.getFriendList()
+                .stream()
+                .anyMatch(r -> r.equals(sender.getEmail()));
+        if (alreadyAreFriends) {
+            throw new ConflictException("Users are already friends");
+        }
+    }
+
+    private void validateRequestForOwner(User receiver, User sender, FriendRequestStatus status) {
         if (receiver.getId().equals(sender.getId())) {
             throw new ConflictException("Friend request is not for the owner user");
         }
         if (PENDING.equals(status)) {
-            throw new ConflictException("request respond can not be PENDING");
+            throw new ConflictException("Request response cannot be PENDING");
         }
-        if (ACCEPTED.equals(status)) {
-            sender.getFriendList().add(receiver.getId());
-            receiver.getFriendList().add(sender.getId());
-            userService.save(receiver);
-            userService.save(sender);
-        }
-        request.setStatus(status);
+    }
+
+    private void acceptFriendRequest(User receiver, User sender) {
+        receiver.addFriendList(sender);
+        userService.save(receiver);
+        userService.save(sender);
+    }
+
+    private FriendRequest saveRequest(FriendRequest request) {
         return friendRequestRepository.save(request);
     }
 }

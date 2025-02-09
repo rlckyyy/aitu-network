@@ -25,4 +25,11 @@ public class User implements Serializable {
     private List<Role> roles;
     private List<String> friendList;
     private String photoPath;
+
+    public void addFriendList(User user){
+        if (user != null && user.getFriendList() != null) {
+            this.friendList.add(user.getEmail());
+            user.getFriendList().add(this.email);
+        }
+    }
 }
