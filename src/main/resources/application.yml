@@ -4,6 +4,7 @@ server:
 logging:
   level:
     org.springframework.security: debug
+    org.springframework.data.mongodb.core: debug
 spring:
   data:
     mongodb:

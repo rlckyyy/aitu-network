@@ -16,6 +16,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -34,7 +37,9 @@ public class SecurityConfig {
             "/swagger-ui/**",
             "/swagger-resources/*",
             "/v3/api-docs/**",
-            "/api/v1/auth/**"};
+            "/api/v1/auth/**",
+            "/ws/**"
+    };
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -47,6 +52,16 @@ public class SecurityConfig {
                         authorize.requestMatchers(ALLOW_ALL_MATCHER).permitAll()
                                 .anyRequest().authenticated()
                 )
+                .logout(logout -> {
+                    logout.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler());
+                    logout.logoutUrl("/api/v1/auth/logout");
+                    logout.deleteCookies("jwt");
+                    logout.addLogoutHandler(
+                            new HeaderWriterLogoutHandler(
+                                    new ClearSiteDataHeaderWriter(ClearSiteDataHeaderWriter.Directive.COOKIES)
+                            )
+                    );
+                })
                 .sessionManagement(manager ->
                         manager.sessionCreationPolicy(STATELESS)
                 )

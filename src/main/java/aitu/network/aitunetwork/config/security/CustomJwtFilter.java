@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -31,12 +32,12 @@ public class CustomJwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest req,
                                     HttpServletResponse res,
                                     FilterChain chain) throws ServletException, IOException {
-        String authHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {
+        String token = getTokenFromCookie(req)
+                .orElse(null);
+        if (token == null) {
             chain.doFilter(req, res);
             return;
         }
-        String token = authHeader.substring(BEARER_PREFIX.length());
         String user = jwtService.extractUserName(token);
         log.debug("in jwtFilterChain {}", requestLine(req));
         if (StringUtils.isNoneEmpty(user) && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -52,6 +53,15 @@ public class CustomJwtFilter extends OncePerRequestFilter {
             }
         }
         chain.doFilter(req, res);
+    }
+
+    private Optional<String> getTokenFromCookie(HttpServletRequest req) {
+        String authHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
+        if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {
+            return Optional.empty();
+        }
+
+        return Optional.of(authHeader.substring(BEARER_PREFIX.length()));
     }
 
     private static String requestLine(HttpServletRequest request) {

@@ -2,12 +2,11 @@ package aitu.network.aitunetwork.common.resolver;
 
 
 import aitu.network.aitunetwork.common.annotations.CurrentUser;
-import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
+import aitu.network.aitunetwork.common.exception.UnauthorizedException;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
-import aitu.network.aitunetwork.model.entity.User;
-import aitu.network.aitunetwork.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -18,7 +17,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @Service
 @RequiredArgsConstructor
 public class CurrentUserMethodResolver implements HandlerMethodArgumentResolver {
-    private final UserRepository userRepository;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -30,10 +28,11 @@ public class CurrentUserMethodResolver implements HandlerMethodArgumentResolver 
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) throws Exception {
-        var principal = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String email = principal.getUser().getEmail();
-        return userRepository.findUserByEmail(email)
-                .orElseThrow(() ->
-                        new EntityNotFoundException(User.class, "email", email));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+            return userDetails;
+        } else {
+            throw new UnauthorizedException("User not authorized");
+        }
     }
 }

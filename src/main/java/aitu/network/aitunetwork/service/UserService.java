@@ -6,7 +6,7 @@ import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.dto.UserDTO;
 import aitu.network.aitunetwork.model.entity.User;
-import aitu.network.aitunetwork.repository.UserRepository;
+import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
 import aitu.network.aitunetwork.service.util.GridFsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,7 +19,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
+    private final SecureTalkUserRepository secureTalkUserRepository;
     private final GridFsService gridFsService;
 
     public void setProfilePhoto(MultipartFile file) {
@@ -27,7 +27,7 @@ public class UserService {
             User user = getCurrentUser();
             String hexId = gridFsService.uploadPhoto(file);
             user.setPhotoPath(hexId);
-            userRepository.save(user);
+            secureTalkUserRepository.save(user);
         } catch (IOException e) {
             throw new ConflictException(e.getLocalizedMessage());
         }
@@ -36,16 +36,16 @@ public class UserService {
     public User getCurrentUser() {
         var principal = (CustomUserDetails) SecurityContextHolder
                 .getContext().getAuthentication().getPrincipal();
-        return userRepository.findUserByEmail(principal.getUsername()).orElseThrow(() ->
+        return secureTalkUserRepository.findUserByEmail(principal.getUsername()).orElseThrow(() ->
                 new EntityNotFoundException(User.class, "email", principal.getUsername()));
     }
 
     public List<User> getAll() {
-        return userRepository.findAll();
+        return secureTalkUserRepository.findAll();
     }
 
     public User getById(String id) {
-        return userRepository.findById(id)
+        return secureTalkUserRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, id));
     }
 
@@ -65,10 +65,10 @@ public class UserService {
         if (!removed) {
             throw new ConflictException("User doesnt have user with such id");
         }
-        userRepository.save(user);
+        secureTalkUserRepository.save(user);
     }
 
     public User save(User user) {
-        return userRepository.save(user);
+        return secureTalkUserRepository.save(user);
     }
 }
