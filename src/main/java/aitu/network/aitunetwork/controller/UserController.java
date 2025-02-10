@@ -16,6 +16,10 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
+    @GetMapping("/me")
+    User me() {
+        return userService.getCurrentUser();
+    }
 
     @GetMapping
     List<User> getAllUsers() {

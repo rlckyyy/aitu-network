@@ -8,11 +8,11 @@ spring:
   data:
     mongodb:
       uri: mongodb://aituuser:aitupass@localhost:27017/aitunetwork?authSource=admin
-  neo4j:
-    uri: aitu4j://localhost:7687
-    authentication:
-      username: aitu4j
-      password: aitupass
+#  neo4j:
+#    uri: aitu4j://localhost:7687
+#    authentication:
+#      username: aitu4j
+#      password: aitupass
 
 token:
   key: 53A73E5F1C4E0A2D3B5F2D784E6A1B423D6F247D1F6E5C3A596D635A75327855

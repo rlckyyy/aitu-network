@@ -5,9 +5,7 @@ import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
 import aitu.network.aitunetwork.model.entity.FriendRequest;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.FriendRequestStatus;
-import aitu.network.aitunetwork.model.neo4j.UserNeo4J;
 import aitu.network.aitunetwork.repository.FriendRequestRepository;
-import aitu.network.aitunetwork.repository.neo4j.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +21,6 @@ import static aitu.network.aitunetwork.model.enums.FriendRequestStatus.*;
 public class FriendshipService {
     private final FriendRequestRepository friendRequestRepository;
     private final UserService userService;
-    private final UserRepository user4jRepository;
 
     public List<FriendRequest> getRequests(FriendRequestStatus status) {
         var user = userService.getCurrentUser();
@@ -93,27 +90,27 @@ public class FriendshipService {
 
         if (ACCEPTED.equals(status)) {
             acceptFriendRequest(receiver, sender);
-            addToNeo4j(receiver, sender);
+//            addToNeo4j(receiver, sender);
         }
         request.setStatus(status);
         return saveRequest(request);
     }
 
-    private void addToNeo4j(User receiver, User sender) {
-        var receiver4j = create4jUser(receiver);
-        var sender4j = create4jUser(sender);
-        receiver4j.getFriendsOut().add(sender4j);
-        sender4j.getFriendsOut().add(receiver4j);
-        user4jRepository.save(receiver4j);
-        user4jRepository.save(sender4j);
-    }
-
-    private static UserNeo4J create4jUser(User receiver) {
-        return UserNeo4J.builder()
-                .email(receiver.getEmail())
-                .username(receiver.getUsername())
-                .build();
-    }
+//    private void addToNeo4j(User receiver, User sender) {
+//        var receiver4j = create4jUser(receiver);
+//        var sender4j = create4jUser(sender);
+//        receiver4j.getFriendsOut().add(sender4j);
+//        sender4j.getFriendsOut().add(receiver4j);
+//        user4jRepository.save(receiver4j);
+//        user4jRepository.save(sender4j);
+//    }
+//
+//    private static UserNeo4J create4jUser(User receiver) {
+//        return UserNeo4J.builder()
+//                .email(receiver.getEmail())
+//                .username(receiver.getUsername())
+//                .build();
+//    }
 
     private FriendRequest findFriendRequestById(String requestId) {
         return friendRequestRepository
