@@ -30,7 +30,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public JwtResponse login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
+    public JwtResponse login(@RequestBody @Valid LoginRequest loginRequest,
+                             HttpServletResponse response) {
         JwtResponse jwtResponse = authService.login(loginRequest);
         CookieUtils.addJwtToCookie(response, jwtResponse.token());
         return jwtResponse;
