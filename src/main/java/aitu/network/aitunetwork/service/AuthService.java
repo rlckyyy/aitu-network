@@ -7,11 +7,14 @@ import aitu.network.aitunetwork.config.security.CustomUserDetailsService;
 import aitu.network.aitunetwork.config.security.JwtService;
 import aitu.network.aitunetwork.model.dto.JwtResponse;
 import aitu.network.aitunetwork.model.dto.LoginRequest;
+import aitu.network.aitunetwork.model.dto.RegisterRequest;
 import aitu.network.aitunetwork.model.dto.UserDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.Role;
 import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
+import com.mongodb.MongoWriteException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,12 +33,14 @@ public class AuthService {
     private final CustomUserDetailsService customUserDetailsService;
     private final ChatUserService chatUserService;
 
-    public User registerUser(UserDTO userDTO) {
-        if (isExist(userDTO.email())) {
-            throw new ConflictException("User with email " + userDTO.email() + " already exists");
+    public User registerUser(RegisterRequest request) {
+        User user = null;
+        try {
+            user = secureTalkUserRepository.save(mapUserDTOToUser(request));
+            chatUserService.saveChatUser(user);
+        } catch (DuplicateKeyException e) {
+            throw new ConflictException("User with email " + request.email() + " already exists");
         }
-        User user = secureTalkUserRepository.save(mapUserDTOToUser(userDTO));
-        chatUserService.saveChatUser(user);
         return user;
     }
 
@@ -61,7 +66,7 @@ public class AuthService {
         return secureTalkUserRepository.findUserByEmail(email).isPresent();
     }
 
-    private User mapUserDTOToUser(UserDTO userDTO) {
+    private User mapUserDTOToUser(RegisterRequest userDTO) {
         return User.builder()
                 .email(userDTO.email())
                 .username(userDTO.username())

@@ -57,7 +57,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problemDetail;
     }
 
-
     private String getPath(WebRequest request) {
         return (request instanceof ServletWebRequest)
                 ? ((ServletWebRequest) request).getRequest().getRequestURI()

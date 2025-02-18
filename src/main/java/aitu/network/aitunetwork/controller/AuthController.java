@@ -4,8 +4,10 @@ import aitu.network.aitunetwork.common.annotations.CurrentUser;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.dto.JwtResponse;
 import aitu.network.aitunetwork.model.dto.LoginRequest;
+import aitu.network.aitunetwork.model.dto.RegisterRequest;
 import aitu.network.aitunetwork.model.dto.UserDTO;
 import aitu.network.aitunetwork.model.entity.User;
+import aitu.network.aitunetwork.model.mapper.UserMapper;
 import aitu.network.aitunetwork.service.AuthService;
 import aitu.network.aitunetwork.util.CookieUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -25,8 +27,8 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public User register(@RequestBody @Valid UserDTO userDTO) {
-        return authService.registerUser(userDTO);
+    public User register(@RequestBody @Valid RegisterRequest request) {
+        return authService.registerUser(request);
     }
 
     @PostMapping("/login")
@@ -40,6 +42,6 @@ public class AuthController {
     @GetMapping("/me")
     public UserDTO me(@CurrentUser UserDetails userDetails) {
         User user = ((CustomUserDetails) userDetails).getUser();
-        return new UserDTO(user.getUsername(), user.getEmail(), "");
+        return UserMapper.toDto(user);
     }
 }

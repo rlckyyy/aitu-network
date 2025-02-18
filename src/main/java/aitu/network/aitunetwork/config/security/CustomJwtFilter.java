@@ -2,12 +2,12 @@ package aitu.network.aitunetwork.config.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,13 +18,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Optional;
+import java.util.Arrays;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class CustomJwtFilter extends OncePerRequestFilter {
-    private static final String BEARER_PREFIX = "Bearer ";
+    private static final String JWT = "jwt";
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
 
@@ -32,9 +32,8 @@ public class CustomJwtFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest req,
                                     HttpServletResponse res,
                                     FilterChain chain) throws ServletException, IOException {
-        String token = getTokenFromCookie(req)
-                .orElse(null);
-        if (token == null) {
+        String token = getTokenFromCookie(req);
+        if (StringUtils.isEmpty(token)) {
             chain.doFilter(req, res);
             return;
         }
@@ -55,13 +54,16 @@ public class CustomJwtFilter extends OncePerRequestFilter {
         chain.doFilter(req, res);
     }
 
-    private Optional<String> getTokenFromCookie(HttpServletRequest req) {
-        String authHeader = req.getHeader(HttpHeaders.AUTHORIZATION);
-        if (StringUtils.isEmpty(authHeader) || !StringUtils.startsWith(authHeader, BEARER_PREFIX)) {
-            return Optional.empty();
+    private String getTokenFromCookie(HttpServletRequest req) {
+        if (req.getCookies() == null) {
+            return null;
         }
 
-        return Optional.of(authHeader.substring(BEARER_PREFIX.length()));
+        return Arrays.stream(req.getCookies())
+                .filter(cookie -> cookie.getName().equals(JWT))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElse(null);
     }
 
     private static String requestLine(HttpServletRequest request) {
