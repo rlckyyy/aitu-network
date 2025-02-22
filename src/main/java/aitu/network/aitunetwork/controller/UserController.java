@@ -2,6 +2,7 @@ package aitu.network.aitunetwork.controller;
 
 
 import aitu.network.aitunetwork.model.dto.UserDTO;
+import aitu.network.aitunetwork.model.dto.UserUpdateDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +27,8 @@ public class UserController {
         return userService.getById(id);
     }
 
-    @PutMapping
-    User updateUser(@RequestBody UserDTO userDTO) {
+    @PatchMapping
+    User updateUser(@RequestBody UserUpdateDTO userDTO) {
         return userService.updateUser(userDTO);
     }
 

@@ -4,7 +4,7 @@ package aitu.network.aitunetwork.service;
 import aitu.network.aitunetwork.common.exception.ConflictException;
 import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
-import aitu.network.aitunetwork.model.dto.UserDTO;
+import aitu.network.aitunetwork.model.dto.UserUpdateDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
 import aitu.network.aitunetwork.service.util.GridFsService;
@@ -49,8 +49,11 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException(User.class, id));
     }
 
-    public User updateUser(UserDTO userDTO) {
-        return null;
+    public User updateUser(UserUpdateDTO userDTO) {
+        User currentUser = getCurrentUser();
+        currentUser.setUsername(userDTO.username());
+        currentUser.setDescription(userDTO.description());
+        return secureTalkUserRepository.save(currentUser);
     }
 
     public void deleteFriendById(String userId) {

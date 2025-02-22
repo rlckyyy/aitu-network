@@ -22,6 +22,7 @@ public class User implements Serializable {
     private String username;
     @Indexed(unique = true)
     private String email;
+    private String description;
     @JsonIgnore
     private String password;
     private List<Role> roles;
