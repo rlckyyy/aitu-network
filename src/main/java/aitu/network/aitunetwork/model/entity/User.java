@@ -27,7 +27,7 @@ public class User implements Serializable {
     private String password;
     private List<Role> roles;
     private List<String> friendList;
-    private String photoPath;
+    private Avatar avatar;
 
     public void addFriendList(User user) {
         if (user != null && user.getFriendList() != null) {

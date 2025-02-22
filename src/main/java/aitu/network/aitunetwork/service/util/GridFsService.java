@@ -19,7 +19,7 @@ import java.io.IOException;
 public class GridFsService {
     private final GridFsTemplate gridFsTemplate;
 
-    public String uploadPhoto(MultipartFile file) throws IOException {
+    public String uploadFile(MultipartFile file) throws IOException {
         ObjectId fileId = gridFsTemplate.store(file.getInputStream(), file.getOriginalFilename(), file.getContentType());
         return fileId.toHexString();
     }

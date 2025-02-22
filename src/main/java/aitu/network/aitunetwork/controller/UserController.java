@@ -1,11 +1,11 @@
 package aitu.network.aitunetwork.controller;
 
 
-import aitu.network.aitunetwork.model.dto.UserDTO;
 import aitu.network.aitunetwork.model.dto.UserUpdateDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,6 +36,7 @@ public class UserController {
     void setProfilePhoto(@RequestParam MultipartFile file) {
         userService.setProfilePhoto(file);
     }
+
 
     @DeleteMapping("/friend/{userId}")
     void deleteFriend(@PathVariable String userId) {

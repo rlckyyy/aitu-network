@@ -5,33 +5,34 @@ import aitu.network.aitunetwork.common.exception.ConflictException;
 import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.dto.UserUpdateDTO;
+import aitu.network.aitunetwork.model.entity.Avatar;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
-import aitu.network.aitunetwork.service.util.GridFsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final SecureTalkUserRepository secureTalkUserRepository;
-    private final GridFsService gridFsService;
+    private final FileService fileService;
+    @Value("${secure-talk.domain}")
+    private String DOMAIN;
 
     public void setProfilePhoto(MultipartFile file) {
-        try {
-            User user = getCurrentUser();
-            String hexId = gridFsService.uploadPhoto(file);
-            user.setPhotoPath(hexId);
-            secureTalkUserRepository.save(user);
-        } catch (IOException e) {
-            throw new ConflictException(e.getLocalizedMessage());
-        }
+        User user = getCurrentUser();
+        String hexId = fileService.uploadPhoto(file);
+        user.setAvatar(Avatar.builder()
+                .location(DOMAIN + "/api/v1/file/" + hexId)
+                .build());
+        secureTalkUserRepository.save(user);
     }
+
 
     public User getCurrentUser() {
         var principal = (CustomUserDetails) SecurityContextHolder
