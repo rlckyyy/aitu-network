@@ -1,9 +1,9 @@
 package aitu.network.aitunetwork.controller;
 
-import aitu.network.aitunetwork.model.dto.ChatUserDTO;
 import aitu.network.aitunetwork.model.entity.ChatMessage;
 import aitu.network.aitunetwork.model.entity.ChatNotification;
 import aitu.network.aitunetwork.model.entity.ChatRoom;
+import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.service.ChatMessageService;
 import aitu.network.aitunetwork.service.ChatRoomService;
 import aitu.network.aitunetwork.service.ChatUserService;
@@ -11,16 +11,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
 @Controller
+@RequestMapping("/api/v1/chats")
 @RequiredArgsConstructor
 public class ChatController {
 
@@ -30,7 +32,6 @@ public class ChatController {
     private final ChatUserService chatUserService;
 
     @MessageMapping("/chat")
-    @SendTo("user/topic/messages")
     public void processMessage(
             @Payload ChatMessage chatMessage
     ) {
@@ -46,22 +47,6 @@ public class ChatController {
                         saved.getSender(),
                         saved.getContent()
                 ));
-    }
-
-    @MessageMapping("/user.addUser")
-    @SendTo("/user/public")
-    public ChatUserDTO addUser(
-            @Payload ChatUserDTO chatUserDTO
-    ) {
-        return chatUserDTO;
-    }
-
-    @MessageMapping("/user.disconnectUser")
-    @SendTo("/user/public")
-    public ChatUserDTO disconnect(
-            @Payload ChatUserDTO chatUserDTO
-    ) {
-        return chatUserDTO;
     }
 
     @GetMapping("/messages/{senderId}/{recipientId}/count")
@@ -80,51 +65,21 @@ public class ChatController {
                 .ok(chatMessageService.findChatMessages(sender, recipient));
     }
 
-//    @GetMapping("/messages/{id}")
-//    public ResponseEntity<?> findMessage(@PathVariable String id) {
-//        return ResponseEntity
-//                .ok(chatMessageService.findById(id));
-//    }
-
-
-    @MessageMapping("/message") // app/message
-    @SendTo("/chatroom/public")
-    public ChatMessage receivePublicMessage(
-            @Payload ChatMessage message
-    ) {
-        return message;
-    }
-
-    @MessageMapping("/private-message")
-    public ChatMessage receivePrivateMessage(
-            @Payload ChatMessage message
-    ) {
-        chatRoomService.getChatId(message.getSender(), message.getRecipient(), true)
-                .ifPresent(message::setChatId);
-
-        ChatMessage savedChatMessage = chatMessageService.save(message);
-        messagingTemplate.convertAndSendToUser(
-                message.getRecipient(),
-                "/private",
-                new ChatNotification(
-                        savedChatMessage.getId(),
-                        savedChatMessage.getChatId(),
-                        savedChatMessage.getSender(),
-                        savedChatMessage.getContent()
-                )
-        ); // receiver should listen to /user/<receiverId>/private to get messages
-        return message;
+    @ResponseBody
+    @GetMapping("/rooms/{email}")
+    public List<ChatRoom> getUserChatHistory(@PathVariable String email) {
+        return chatUserService.getUserChats(email);
     }
 
     @ResponseBody
-    @GetMapping("/chats/rooms/{username}")
-    public List<ChatRoom> getUserChatHistory(@PathVariable String username) {
-        return chatUserService.getUserChats(username);
+    @GetMapping("/users/online")
+    public List<User> getOnlineUsers() {
+        return chatUserService.getOnlineUsers();
     }
 
     @ResponseBody
-    @GetMapping("/messages/{chatId}")
-    public List<ChatMessage> getChatMessages(@PathVariable String chatId) {
-        return chatMessageService.findChatMessages(chatId);
+    @GetMapping("/users/search")
+    public List<User> searchUsers(@RequestParam String query) {
+        return chatUserService.searchUsers(query);
     }
 }

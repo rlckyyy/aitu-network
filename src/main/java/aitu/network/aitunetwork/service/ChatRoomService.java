@@ -1,7 +1,10 @@
 package aitu.network.aitunetwork.service;
 
 import aitu.network.aitunetwork.model.entity.ChatRoom;
+import aitu.network.aitunetwork.model.entity.ChatUser;
+import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.repository.ChatRoomRepository;
+import aitu.network.aitunetwork.repository.ChatUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +16,7 @@ import java.util.Optional;
 public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatUserRepository chatUserRepository;
 
     public Optional<String> getChatId(
             String sender, String recipient, boolean createIfNotExist) {
@@ -47,7 +51,13 @@ public class ChatRoomService {
                 });
     }
 
-    public List<ChatRoom> getUserChatRooms(String username) {
-        return chatRoomRepository.findAllBySender(username);
+    public List<ChatRoom> getUserChatRooms(String email) {
+        return chatRoomRepository.findAllBySender(email);
+    }
+
+    public List<User> getOnlineUsers() {
+        return chatUserRepository.findAllByConnected(true).stream()
+                .map(ChatUser::getUser)
+                .toList();
     }
 }

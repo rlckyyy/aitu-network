@@ -1,7 +1,13 @@
 package aitu.network.aitunetwork.common.exception;
 
-public class UnauthorizedException extends RuntimeException {
+import aitu.network.aitunetwork.exception.SecureTalkException;
+import org.springframework.http.HttpStatus;
+
+public class UnauthorizedException extends SecureTalkException {
+
+    private static final HttpStatus HTTP_STATUS = HttpStatus.UNAUTHORIZED;
+
     public UnauthorizedException(String message) {
-        super(message);
+        super(message, HTTP_STATUS);
     }
 }

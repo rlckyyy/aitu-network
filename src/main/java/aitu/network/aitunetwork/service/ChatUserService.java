@@ -4,6 +4,7 @@ import aitu.network.aitunetwork.model.entity.ChatRoom;
 import aitu.network.aitunetwork.model.entity.ChatUser;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.repository.ChatUserRepository;
+import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -21,6 +22,8 @@ public class ChatUserService {
     private final MongoTemplate mongoTemplate;
     private final ChatUserRepository chatUserRepository;
     private final ChatRoomService chatRoomService;
+    private final SecureTalkUserRepository secureTalkUserRepository;
+    private final UserService userService;
 
     public void saveChatUser(User user) {
         ChatUser chatUser = mapToChatUser(user);
@@ -48,7 +51,19 @@ public class ChatUserService {
         return new ChatUser(user, null, null, null, null);
     }
 
-    public List<ChatRoom> getUserChats(String username) {
-        return chatRoomService.getUserChatRooms(username);
+    public List<ChatRoom> getUserChats(String email) {
+        return chatRoomService.getUserChatRooms(email);
+    }
+
+    public List<User> getOnlineUsers() {
+        return chatRoomService.getOnlineUsers();
+    }
+
+    public List<User> searchUsers(String query) {
+        List<User> users = secureTalkUserRepository.findAllByEmailContainsIgnoreCase(query);
+        String currentUserEmail = userService.getCurrentUser().getEmail();
+        return users.stream()
+                .filter(user -> !user.getEmail().equals(currentUserEmail))
+                .toList();
     }
 }

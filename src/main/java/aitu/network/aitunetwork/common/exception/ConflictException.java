@@ -1,7 +1,13 @@
 package aitu.network.aitunetwork.common.exception;
 
-public class ConflictException extends RuntimeException {
+import aitu.network.aitunetwork.exception.SecureTalkException;
+import org.springframework.http.HttpStatus;
+
+public class ConflictException extends SecureTalkException {
+
+    private static final HttpStatus HTTP_STATUS = HttpStatus.CONFLICT;
+
     public ConflictException(String msg) {
-        super(msg);
+        super(msg, HTTP_STATUS);
     }
 }
