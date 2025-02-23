@@ -1,6 +1,7 @@
 package aitu.network.aitunetwork.controller;
 
 import aitu.network.aitunetwork.model.entity.FriendRequest;
+import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.FriendRequestStatus;
 import aitu.network.aitunetwork.service.FriendshipService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,10 @@ public class FriendshipController {
     List<FriendRequest> getReceivedFriendRequests(
             @RequestParam(required = false) FriendRequestStatus status) {
         return friendshipService.getRequests(status);
+    }
+    @GetMapping("/{userId}")
+    List<User> getUserFriends(@PathVariable String userId){
+        return friendshipService.getUserFriendList(userId);
     }
 
     @GetMapping("/sent")

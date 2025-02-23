@@ -43,9 +43,12 @@ public class FriendshipService {
             throw new ConflictException("user id is null");
         }
         var user = userService.getCurrentUser();
+        var receiver = userService.getById(id);
         var req = FriendRequest.builder()
                 .receiverId(id)
+                .receiver(receiver.getUsername())
                 .senderId(user.getId())
+                .sender(user.getUsername())
                 .status(PENDING).build();
         return friendRequestRepository.save(req);
     }
@@ -144,5 +147,9 @@ public class FriendshipService {
 
     private FriendRequest saveRequest(FriendRequest request) {
         return friendRequestRepository.save(request);
+    }
+
+    public List<User> getUserFriendList(String userId) {
+        return userService.getUserFriends(userId);
     }
 }

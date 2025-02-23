@@ -13,6 +13,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class FriendRequest {
     private String id;
     private String senderId;
+    private String sender;
     private String receiverId;
+    private String receiver;
     private FriendRequestStatus status;
 }
