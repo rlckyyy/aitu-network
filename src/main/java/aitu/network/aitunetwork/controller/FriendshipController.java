@@ -16,7 +16,7 @@ public class FriendshipController {
     private final FriendshipService friendshipService;
 
     @GetMapping("/received")
-    List<FriendRequest> getFriendRequests(
+    List<FriendRequest> getReceivedFriendRequests(
             @RequestParam(required = false) FriendRequestStatus status) {
         return friendshipService.getRequests(status);
     }
