@@ -5,7 +5,7 @@ import aitu.network.aitunetwork.model.dto.UserUpdateDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +37,11 @@ public class UserController {
         userService.setProfilePhoto(file);
     }
 
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/profile/photo")
+    void deleteProfilePhoto() {
+        userService.deleteProfilePhoto();
+    }
 
     @DeleteMapping("/friend/{userId}")
     void deleteFriend(@PathVariable String userId) {

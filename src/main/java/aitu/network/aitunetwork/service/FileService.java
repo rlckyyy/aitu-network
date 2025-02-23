@@ -23,6 +23,9 @@ public class FileService {
             throw new ConflictException(e.getLocalizedMessage());
         }
     }
+    public void deleteFile(String id){
+        gridFsService.deleteFile(id);
+    }
 
     public InputStreamResource getFile(String id) {
         try {

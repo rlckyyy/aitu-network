@@ -17,8 +17,7 @@ public class FileController {
     private final FileService fileService;
 
     @GetMapping("/{id}")
-    public byte[] downloadFile(@PathVariable String id) throws IOException {
-        InputStreamResource file = fileService.getFile(id);
-        return file.getContentAsByteArray();
+    public InputStreamResource downloadFile(@PathVariable String id) throws IOException {
+        return fileService.getFile(id);
     }
 }

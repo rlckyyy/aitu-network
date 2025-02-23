@@ -28,6 +28,7 @@ public class UserService {
         User user = getCurrentUser();
         String hexId = fileService.uploadPhoto(file);
         user.setAvatar(Avatar.builder()
+                .id(hexId)
                 .location(DOMAIN + "/api/v1/file/" + hexId)
                 .build());
         secureTalkUserRepository.save(user);
@@ -74,5 +75,11 @@ public class UserService {
 
     public User save(User user) {
         return secureTalkUserRepository.save(user);
+    }
+
+    public void deleteProfilePhoto() {
+        User currentUser = getCurrentUser();
+        fileService.deleteFile(currentUser.getAvatar().getId());
+        currentUser.setAvatar(null);
     }
 }
