@@ -1,7 +1,6 @@
 package aitu.network.aitunetwork.controller;
 
 import aitu.network.aitunetwork.model.entity.ChatMessage;
-import aitu.network.aitunetwork.model.entity.ChatNotification;
 import aitu.network.aitunetwork.model.entity.ChatRoom;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.service.ChatMessageService;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/api/v1/chats")
@@ -41,21 +41,18 @@ public class ChatController {
         ChatMessage saved = chatMessageService.save(chatMessage);
         messagingTemplate.convertAndSendToUser(
                 chatMessage.getRecipient(), "/queue/messages",
-                new ChatNotification(
-                        saved.getId(),
-                        saved.getChatId(),
-                        saved.getSender(),
-                        saved.getContent()
-                ));
+                saved
+        );
     }
 
     @GetMapping("/messages/{senderId}/{recipientId}/count")
-    public ResponseEntity<Long> countNewMessages(
+    public ResponseEntity<Map<String, Long>> countNewMessages(
             @PathVariable String senderId,
             @PathVariable String recipientId) {
 
+        long count = chatMessageService.countNewMessages(senderId, recipientId);
         return ResponseEntity
-                .ok(chatMessageService.countNewMessages(senderId, recipientId));
+                .ok(Map.of("count", count));
     }
 
     @GetMapping("/messages/{sender}/{recipient}")
@@ -81,5 +78,12 @@ public class ChatController {
     @GetMapping("/users/search")
     public List<User> searchUsers(@RequestParam String query) {
         return chatUserService.searchUsers(query);
+    }
+
+    @ResponseBody
+    @GetMapping("/id/{sender}/{recipient}")
+    public Map<String, String> getChatId(@PathVariable String sender, @PathVariable String recipient) {
+        String chatId = chatRoomService.getChatId(sender, recipient, true).get();
+        return Map.of("chatId", chatId);
     }
 }
