@@ -5,6 +5,7 @@ import aitu.network.aitunetwork.model.entity.ChatUser;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.repository.ChatRoomRepository;
 import aitu.network.aitunetwork.repository.ChatUserRepository;
+import aitu.network.aitunetwork.service.util.ChatUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,8 +29,7 @@ public class ChatRoomService {
                     if (!createIfNotExist) {
                         return Optional.empty();
                     }
-                    var chatId =
-                            String.format("%s_%s", sender, recipient);
+                    var chatId = ChatUtils.generateChatId(sender, recipient);
 
                     ChatRoom senderRecipient = ChatRoom
                             .builder()

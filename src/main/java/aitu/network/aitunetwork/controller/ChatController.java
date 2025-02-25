@@ -6,6 +6,7 @@ import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.service.ChatMessageService;
 import aitu.network.aitunetwork.service.ChatRoomService;
 import aitu.network.aitunetwork.service.ChatUserService;
+import aitu.network.aitunetwork.service.util.ChatUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/api/v1/chats")
@@ -37,7 +39,6 @@ public class ChatController {
     ) {
         var chatId = chatRoomService.getChatId(chatMessage.getSender(), chatMessage.getRecipient(), true);
         chatMessage.setChatId(chatId.get());
-
         ChatMessage saved = chatMessageService.save(chatMessage);
         messagingTemplate.convertAndSendToUser(
                 chatMessage.getRecipient(), "/queue/messages",
@@ -83,7 +84,7 @@ public class ChatController {
     @ResponseBody
     @GetMapping("/id/{sender}/{recipient}")
     public Map<String, String> getChatId(@PathVariable String sender, @PathVariable String recipient) {
-        String chatId = chatRoomService.getChatId(sender, recipient, true).get();
-        return Map.of("chatId", chatId);
+        Optional<String> maybeChatId = chatRoomService.getChatId(sender, recipient, false);
+        return maybeChatId.map(chatId -> Map.of("chatId", chatId)).orElseGet(() -> Map.of("chatId", ChatUtils.generateChatId(sender, recipient)));
     }
 }
