@@ -28,6 +28,7 @@ public class User implements Serializable {
     private List<Role> roles;
     private List<String> friendList;
     private Avatar avatar;
+    private String publicKey;
 
     public void addFriendList(User user) {
         if (user != null && user.getFriendList() != null) {

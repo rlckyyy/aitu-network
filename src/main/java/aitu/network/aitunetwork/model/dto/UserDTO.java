@@ -14,6 +14,7 @@ public record UserDTO(
         String email,
         Avatar avatar,
         List<Role> roles,
-        List<String> friendList
+        List<String> friendList,
+        String publicKey
 ) {
 }

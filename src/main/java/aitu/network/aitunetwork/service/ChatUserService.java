@@ -55,10 +55,6 @@ public class ChatUserService {
         return chatRoomService.getUserChatRooms(email);
     }
 
-    public List<User> getOnlineUsers() {
-        return chatRoomService.getOnlineUsers();
-    }
-
     public List<User> searchUsers(String query) {
         List<User> users = secureTalkUserRepository.findAllByEmailContainsIgnoreCase(query);
         String currentUserEmail = userService.getCurrentUser().getEmail();

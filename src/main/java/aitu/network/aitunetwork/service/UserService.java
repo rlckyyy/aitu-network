@@ -51,9 +51,9 @@ public class UserService {
         return secureTalkUserRepository.findAll();
     }
 
-    public User getById(String id) {
-        return secureTalkUserRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(User.class, id));
+    public User getById(String idOrEmail) {
+        return secureTalkUserRepository.findByIdOrEmail(idOrEmail)
+                .orElseThrow(() -> new EntityNotFoundException(User.class, idOrEmail));
     }
 
     public User updateUser(UserUpdateDTO userDTO) {

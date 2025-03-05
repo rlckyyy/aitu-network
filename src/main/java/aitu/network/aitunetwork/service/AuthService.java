@@ -2,7 +2,6 @@ package aitu.network.aitunetwork.service;
 
 
 import aitu.network.aitunetwork.common.exception.ConflictException;
-import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
 import aitu.network.aitunetwork.config.security.CustomUserDetailsService;
 import aitu.network.aitunetwork.config.security.JwtService;
 import aitu.network.aitunetwork.model.dto.JwtResponse;
@@ -32,14 +31,13 @@ public class AuthService {
     private final ChatUserService chatUserService;
 
     public User registerUser(RegisterRequest request) {
-        User user = null;
         try {
-            user = secureTalkUserRepository.save(mapUserDTOToUser(request));
+            User user = secureTalkUserRepository.save(mapUserDTOToUser(request));
             chatUserService.saveChatUser(user);
+            return user;
         } catch (DuplicateKeyException e) {
             throw new ConflictException("User with email " + request.email() + " already exists");
         }
-        return user;
     }
 
     public JwtResponse login(LoginRequest request) {
@@ -53,13 +51,6 @@ public class AuthService {
         return new JwtResponse(jwt);
     }
 
-
-    public User getByUsername(String email) {
-        return secureTalkUserRepository
-                .findUserByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException(User.class, email));
-    }
-
     public boolean isExist(String email) {
         return secureTalkUserRepository.findUserByEmail(email).isPresent();
     }
@@ -71,7 +62,7 @@ public class AuthService {
                 .password(passwordEncoder.encode(userDTO.password()))
                 .roles(List.of(Role.USER))
                 .friendList(new ArrayList<>())
+                .publicKey(userDTO.publicKey())
                 .build();
     }
-
 }

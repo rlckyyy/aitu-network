@@ -37,8 +37,8 @@ public class ChatController {
     public void processMessage(
             @Payload ChatMessage chatMessage
     ) {
-        var chatId = chatRoomService.getChatId(chatMessage.getSender(), chatMessage.getRecipient(), true);
-        chatMessage.setChatId(chatId.get());
+        chatRoomService.getChatId(chatMessage.getSender(), chatMessage.getRecipient(), true)
+                .ifPresent(chatMessage::setChatId);
         ChatMessage saved = chatMessageService.save(chatMessage);
         messagingTemplate.convertAndSendToUser(
                 chatMessage.getRecipient(), "/queue/messages",
@@ -49,8 +49,8 @@ public class ChatController {
     @GetMapping("/messages/{senderId}/{recipientId}/count")
     public ResponseEntity<Map<String, Long>> countNewMessages(
             @PathVariable String senderId,
-            @PathVariable String recipientId) {
-
+            @PathVariable String recipientId
+    ) {
         long count = chatMessageService.countNewMessages(senderId, recipientId);
         return ResponseEntity
                 .ok(Map.of("count", count));
@@ -70,12 +70,6 @@ public class ChatController {
     }
 
     @ResponseBody
-    @GetMapping("/users/online")
-    public List<User> getOnlineUsers() {
-        return chatUserService.getOnlineUsers();
-    }
-
-    @ResponseBody
     @GetMapping("/users/search")
     public List<User> searchUsers(@RequestParam String query) {
         return chatUserService.searchUsers(query);
@@ -85,6 +79,7 @@ public class ChatController {
     @GetMapping("/id/{sender}/{recipient}")
     public Map<String, String> getChatId(@PathVariable String sender, @PathVariable String recipient) {
         Optional<String> maybeChatId = chatRoomService.getChatId(sender, recipient, false);
-        return maybeChatId.map(chatId -> Map.of("chatId", chatId)).orElseGet(() -> Map.of("chatId", ChatUtils.generateChatId(sender, recipient)));
+        return maybeChatId.map(chatId -> Map.of("chatId", chatId))
+                .orElseGet(() -> Map.of("chatId", ChatUtils.generateChatId(sender, recipient)));
     }
 }
