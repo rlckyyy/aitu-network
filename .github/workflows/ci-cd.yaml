@@ -27,8 +27,11 @@ jobs:
           mvn clean
           mvn -B package
 
-      - name: check
-        run: ls -la
+      - name: Save target directory
+        uses: actions/upload-artifact@v3
+        with:
+          name: target-files
+          path: target/
 
   docker-build-and-push:
     runs-on: ubuntu-latest
@@ -40,8 +43,11 @@ jobs:
       - name: Логин в Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Проверка наличия target/ перед сборкой Docker-образа
-        run: ls -la
+      - name: Restore target directory
+        uses: actions/download-artifact@v3
+        with:
+          name: target-files
+          path: target/
 
       - name: Сборка и пуш Docker-образа
         run: |
