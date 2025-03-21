@@ -8,7 +8,7 @@ spring:
     mongodb:
       auto-index-creation: true
       database: secureTalk
-      uri: mongodb://aituuser:aitupass@mongodb:27017/aitunetwork?authSource=admin
+      uri: mongodb://aituuser:aitupass@host.docker.internal:27017/aitunetwork?authSource=admin
 logging:
   level:
     org.springframework.security: trace
