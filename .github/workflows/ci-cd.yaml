@@ -24,7 +24,7 @@ jobs:
 
       - name: Building of project
         run: |
-          mvn clean --rm
+          mvn clean
           mvn -B package --file pom.xml
 
   docker-build-and-push:
