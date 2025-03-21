@@ -24,7 +24,7 @@ jobs:
 
       - name: Building of project
         run: |
-          mvn clean
+          mvn clean --rm
           mvn -B package --file pom.xml
 
   docker-build-and-push:
@@ -39,8 +39,8 @@ jobs:
 
       - name: Сборка и пуш Docker-образа
         run: |
-          docker build -t aitu-network:latest .
-          docker tag myapp:latest reluckyyy/aitu-network:latest
+          docker build --no-cache -t aitu-network:latest .
+          docker tag aitu-network:latest reluckyyy/aitu-network:latest
           docker push reluckyyy/aitu-network:latest
 
   deploy:
@@ -57,4 +57,4 @@ jobs:
             docker pull reluckyyy/aitu-network:latest
             docker stop aitu-network || true
             docker rm myapp || true
-            docker run -d --name aitu-network -p 8080:8080 reluckyyy/myapp:latest
+            docker run -d --name aitu-network -p 8080:8080 reluckyyy/aitu-network:latest
