@@ -25,7 +25,10 @@ jobs:
       - name: Building of project
         run: |
           mvn clean
-          mvn -B package --file pom.xml
+          mvn -B package
+
+      - name: check
+        run: ls -la
 
   docker-build-and-push:
     runs-on: ubuntu-latest
