@@ -15,7 +15,7 @@
     <description>aitu-network</description>
 
     <properties>
-        <java.version>23</java.version>
+        <java.version>21</java.version>
     </properties>
 
     <dependencies>
@@ -79,17 +79,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
-        <!--clickhouse-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.clickhouse</groupId>-->
-        <!--            <artifactId>clickhouse-jdbc</artifactId>-->
-        <!--            <version>0.7.1</version>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>org.lz4</groupId>-->
-        <!--            <artifactId>lz4-java</artifactId>-->
-        <!--            <version>1.8.0</version>-->
-        <!--        </dependency>-->
     </dependencies>
 
     <dependencyManagement>
