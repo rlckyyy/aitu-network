@@ -31,3 +31,4 @@ volumes:
 networks:
   aitu-net:
     driver: bridge
+    name: aitu-net
