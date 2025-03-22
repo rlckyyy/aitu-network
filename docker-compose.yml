@@ -1,5 +1,7 @@
 services:
   mongodb:
+    networks:
+      - aitu-net
     image: mongo
     container_name: mongo-db
     ports:
@@ -11,6 +13,8 @@ services:
       - mongo_data:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
   mongo-express:
+    networks:
+      - aitu-net
     image: mongo-express
     container_name: mongo-ui
     restart: always
@@ -23,3 +27,7 @@ services:
       ME_CONFIG_BASICAUTH: false
 volumes:
   mongo_data:
+
+networks:
+  aitu-net:
+    driver: bridge
