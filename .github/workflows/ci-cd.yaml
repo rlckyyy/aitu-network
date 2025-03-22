@@ -69,4 +69,4 @@ jobs:
             docker pull reluckyyy/aitu-network:latest
             docker stop aitu-network || true
             docker rm aitu-network || true
-            docker run -d --name aitu-network --network aitu-net -p 8080:8080 reluckyyy/aitu-network:latest
+            docker run -d --name aitu-network --network ubuntu_aitu-net -p 8080:8080 reluckyyy/aitu-network:latest
