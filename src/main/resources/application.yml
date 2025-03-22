@@ -1,6 +1,5 @@
 server:
   port: 8080
-
 secure-talk:
   domain: ${SECURE_TALK_DOMAIN:http://localhost:${server.port}}
 spring:
@@ -9,6 +8,8 @@ spring:
       auto-index-creation: true
       database: secureTalk
       uri: mongodb://aituuser:aitupass@mongo-db:27017/aitunetwork?authSource=admin
+  profiles:
+    active: local
 logging:
   level:
     org.springframework.security: trace
