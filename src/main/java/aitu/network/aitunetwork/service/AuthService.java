@@ -22,7 +22,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthService  {
     private final SecureTalkUserRepository secureTalkUserRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -49,10 +49,6 @@ public class AuthService {
                 loadUserByUsername(request.email());
         var jwt = jwtService.generateToken(user);
         return new JwtResponse(jwt);
-    }
-
-    public boolean isExist(String email) {
-        return secureTalkUserRepository.findUserByEmail(email).isPresent();
     }
 
     private User mapUserDTOToUser(RegisterRequest userDTO) {

@@ -1,5 +1,6 @@
 package aitu.network.aitunetwork.controller.handler;
 
+import aitu.network.aitunetwork.common.exception.ConflictException;
 import aitu.network.aitunetwork.exception.SecureTalkException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ProblemDetail handleDataIntegrityViolationException(
             DataIntegrityViolationException e,
+            WebRequest request) {
+        ProblemDetail problemDetail = ProblemDetail
+                .forStatusAndDetail(HttpStatusCode.valueOf(409), e.getLocalizedMessage());
+        problemDetail.setInstance(URI.create(getPath(request)));
+        return problemDetail;
+    }
+
+    @ExceptionHandler(ConflictException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ProblemDetail handleConflictException(
+            ConflictException e,
             WebRequest request) {
         ProblemDetail problemDetail = ProblemDetail
                 .forStatusAndDetail(HttpStatusCode.valueOf(409), e.getLocalizedMessage());
