@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 @RequiredArgsConstructor
@@ -30,14 +32,18 @@ public class AuthService  {
     private final CustomUserDetailsService customUserDetailsService;
     private final ChatUserService chatUserService;
 
-    public User registerUser(RegisterRequest request) {
-        try {
-            User user = secureTalkUserRepository.save(mapUserDTOToUser(request));
-            chatUserService.saveChatUser(user);
-            return user;
-        } catch (DuplicateKeyException e) {
-            throw new ConflictException("User with email " + request.email() + " already exists");
-        }
+    public CompletableFuture<User> registerUser(RegisterRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                User user = secureTalkUserRepository.save(mapUserDTOToUser(request));
+                chatUserService.saveChatUser(user);
+                return user;
+            } catch (DuplicateKeyException e) {
+                throw new ConflictException("User with email " + request.email() + " already exists");
+            }
+        }).exceptionally(e -> {
+            throw new RuntimeException("Ошибка при регистрации пользователя: " + e.getMessage(), e);
+        });
     }
 
     public JwtResponse login(LoginRequest request) {
