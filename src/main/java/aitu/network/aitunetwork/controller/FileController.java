@@ -17,7 +17,7 @@ public class FileController {
     private final FileService fileService;
 
     @GetMapping("/{id}")
-    public InputStreamResource downloadFile(@PathVariable String id) throws IOException {
+    public InputStreamResource downloadFile(@PathVariable String id) {
         return fileService.getFile(id);
     }
 }
