@@ -86,5 +86,6 @@ public class UserService {
         User currentUser = getCurrentUser();
         fileService.deleteFile(currentUser.getAvatar().getId());
         currentUser.setAvatar(null);
+        secureTalkUserRepository.save(currentUser);
     }
 }

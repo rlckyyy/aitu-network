@@ -3,6 +3,7 @@ package aitu.network.aitunetwork.service.util;
 import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
 import com.mongodb.client.gridfs.model.GridFSFile;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -16,6 +17,7 @@ import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GridFsService {
     private final GridFsTemplate gridFsTemplate;
 
@@ -38,6 +40,7 @@ public class GridFsService {
     }
 
     public void deleteFile(String id) {
+        log.info("id to delete {}", id);
         gridFsTemplate.delete(Query.query(Criteria.where("_id").is(id)));
     }
 }
