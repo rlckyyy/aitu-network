@@ -11,7 +11,7 @@ public class CookieUtils {
         Cookie cookie = new Cookie("jwt", token);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(24 * 60 * 60);
+        cookie.setMaxAge(60 * 60);
         response.addCookie(cookie);
     }
 }
