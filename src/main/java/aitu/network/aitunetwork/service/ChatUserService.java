@@ -6,6 +6,7 @@ import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.repository.ChatUserRepository;
 import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -19,6 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ChatUserService {
 
     private final MongoTemplate mongoTemplate;
@@ -61,7 +63,7 @@ public class ChatUserService {
         List<User> users = secureTalkUserRepository.findAllByEmailContainsIgnoreCase(query);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
+        if (!authentication.isAuthenticated()) {
             return users;
         }
 
