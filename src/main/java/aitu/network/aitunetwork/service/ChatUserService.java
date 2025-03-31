@@ -10,6 +10,8 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -57,9 +59,15 @@ public class ChatUserService {
 
     public List<User> searchUsers(String query) {
         List<User> users = secureTalkUserRepository.findAllByEmailContainsIgnoreCase(query);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return users;
+        }
+
         String currentUserEmail = userService.getCurrentUser().getEmail();
         return users.stream()
-                .filter(user -> !user.getEmail().equals(currentUserEmail))
+                .filter(user -> !user.getEmail().equalsIgnoreCase(currentUserEmail))
                 .toList();
     }
 }
