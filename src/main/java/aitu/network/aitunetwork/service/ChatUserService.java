@@ -63,7 +63,7 @@ public class ChatUserService {
         List<User> users = secureTalkUserRepository.findAllByEmailContainsIgnoreCase(query);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (!authentication.isAuthenticated()) {
+        if (authentication == null) {
             return users;
         }
 

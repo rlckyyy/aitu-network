@@ -66,6 +66,7 @@ public class SecurityConfig {
                         manager.sessionCreationPolicy(STATELESS)
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .anonymous(AbstractHttpConfigurer::disable)
                 .build();
     }
 
