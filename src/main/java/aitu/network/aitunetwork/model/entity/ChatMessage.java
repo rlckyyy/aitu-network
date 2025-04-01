@@ -24,14 +24,7 @@ public class ChatMessage implements Serializable {
    private String sender;
    private String recipient;
    private String content;
-   private String contentForSelf;
    private Date timestamp;
    private MessageStatus status;
    private MessageType type;
-   // encrypted
-   private String encryptedAesKey;
-   private String iv;
-   // encrypted
-   private String encryptedAesKeyForSelf;
-   private String ivForSelf;
 }
