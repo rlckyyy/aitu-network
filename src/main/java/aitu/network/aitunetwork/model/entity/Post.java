@@ -16,6 +16,7 @@ public class Post extends BaseEntity {
     @Id
     private String id;
     private String ownerId;
+    private String groupId;
     private String description;
     private List<String> mediaFileIds;
 }

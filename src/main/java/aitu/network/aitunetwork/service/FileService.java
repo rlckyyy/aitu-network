@@ -16,13 +16,14 @@ import java.io.IOException;
 public class FileService {
     private final GridFsService gridFsService;
 
-    public String uploadPhoto(MultipartFile file) {
+    public String uploadFile(MultipartFile file) {
         try {
             return gridFsService.uploadFile(file);
         } catch (IOException e) {
             throw new ConflictException(e.getLocalizedMessage());
         }
     }
+
     public void deleteFile(String id){
         gridFsService.deleteFile(id);
     }

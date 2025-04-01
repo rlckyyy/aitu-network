@@ -26,7 +26,7 @@ public class UserService {
 
     public void setProfilePhoto(MultipartFile file) {
         User user = getCurrentUser();
-        String hexId = fileService.uploadPhoto(file);
+        String hexId = fileService.uploadFile(file);
         user.setAvatar(Avatar.builder()
                 .id(hexId)
                 .location(DOMAIN + "/v1/file/" + hexId)
