@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -67,5 +69,10 @@ public class AuthService {
                 .friendList(new ArrayList<>())
                 .publicKey(userDTO.publicKey())
                 .build();
+    }
+
+    public Map<String, Boolean> checkAuth() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return Map.of("authenticated", authentication != null);
     }
 }
