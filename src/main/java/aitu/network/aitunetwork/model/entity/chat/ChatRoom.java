@@ -1,4 +1,4 @@
-package aitu.network.aitunetwork.model.entity;
+package aitu.network.aitunetwork.model.entity.chat;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

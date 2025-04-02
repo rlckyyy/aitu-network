@@ -1,7 +1,7 @@
 package aitu.network.aitunetwork.service;
 
-import aitu.network.aitunetwork.model.entity.ChatRoom;
-import aitu.network.aitunetwork.model.entity.ChatUser;
+import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
+import aitu.network.aitunetwork.model.entity.chat.ChatUser;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.repository.ChatUserRepository;
 import aitu.network.aitunetwork.repository.SecureTalkUserRepository;

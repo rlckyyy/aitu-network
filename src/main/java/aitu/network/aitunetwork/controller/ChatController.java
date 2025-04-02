@@ -1,7 +1,7 @@
 package aitu.network.aitunetwork.controller;
 
-import aitu.network.aitunetwork.model.entity.ChatMessage;
-import aitu.network.aitunetwork.model.entity.ChatRoom;
+import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
+import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.service.ChatMessageService;
 import aitu.network.aitunetwork.service.ChatRoomService;

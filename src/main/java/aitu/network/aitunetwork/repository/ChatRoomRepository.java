@@ -1,6 +1,6 @@
 package aitu.network.aitunetwork.repository;
 
-import aitu.network.aitunetwork.model.entity.ChatRoom;
+import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;

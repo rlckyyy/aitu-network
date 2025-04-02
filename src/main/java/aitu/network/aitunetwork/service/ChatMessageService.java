@@ -1,7 +1,7 @@
 package aitu.network.aitunetwork.service;
 
 import aitu.network.aitunetwork.exception.NotFoundException;
-import aitu.network.aitunetwork.model.entity.ChatMessage;
+import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
 import aitu.network.aitunetwork.model.enums.MessageStatus;
 import aitu.network.aitunetwork.repository.ChatMessageRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class ChatMessageService {
     }
 
     public ChatMessage findById(String id) {
-        //                    chatMessage.setStatus(MessageStatus.DELIVERED);
+//                            chatMessage.setStatus(MessageStatus.DELIVERED);
         return chatMessageRepository
                 .findById(id)
                 .map(chatMessageRepository::save)

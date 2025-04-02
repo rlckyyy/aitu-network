@@ -1,6 +1,6 @@
 package aitu.network.aitunetwork.repository;
 
-import aitu.network.aitunetwork.model.entity.ChatMessage;
+import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
 import aitu.network.aitunetwork.model.enums.MessageStatus;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

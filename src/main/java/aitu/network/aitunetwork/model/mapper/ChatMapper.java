@@ -1,6 +1,6 @@
 package aitu.network.aitunetwork.model.mapper;
 
-import aitu.network.aitunetwork.model.entity.ChatRoom;
+import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
