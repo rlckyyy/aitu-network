@@ -38,7 +38,8 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/api/v1/auth/**",
             "/ws/**",
-            "/api/v1/chats/users/**"
+            "/api/v1/chats/users/**",
+            "**/public/**"
     };
 
     @Bean

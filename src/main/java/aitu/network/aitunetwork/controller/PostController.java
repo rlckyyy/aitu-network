@@ -24,7 +24,7 @@ public class PostController {
         return postService.createPost(post, files);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/public/{id}")
     Post getById(@PathVariable String id){
         return postService.findById(id);
     }
