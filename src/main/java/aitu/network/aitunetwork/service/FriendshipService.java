@@ -67,6 +67,7 @@ public class FriendshipService {
     public List<FriendRequest> getSentRequests(FriendRequestStatus status) {
         var user = userService.getCurrentUser();
         List<FriendRequest> friendRequests;
+        log.info("status is {}", status);
         switch (status) {
             case PENDING -> friendRequests = friendRequestRepository.findBySenderIdAndStatus(user.getId(), PENDING);
             case ACCEPTED -> friendRequests = friendRequestRepository.findBySenderIdAndStatus(user.getId(), ACCEPTED);
@@ -77,6 +78,7 @@ public class FriendshipService {
                 log.info("default case sent req");
             }
         }
+        friendRequests.forEach(System.out::println);
         return friendRequests;
     }
 
