@@ -67,8 +67,13 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             docker pull reluckyyy/aitu-network:latest
+            NEW_IMAGE_ID=$(docker images "${{ secrets.DOCKER_USERNAME }}/aitu-network" --format "{{.ID}}" | head -n 1)
+
             docker stop aitu-network || true
             docker rm aitu-network || true
+
+            docker images "${{ secrets.DOCKER_USERNAME }}/aitu-network" --format "{{.ID}}" | grep -v "$NEW_IMAGE_ID" | xargs -r docker rmi -f || true
+
             docker run -d --name aitu-network --network aitu-net \
             -e SPRING_PROFILES_ACTIVE=default \
             -e SECURE_TALK_DOMAIN=https://aitunet.kz/api \

@@ -53,4 +53,10 @@ public class GroupService {
     public Group findById(String id) {
         return repository.findById(id).orElseThrow(() -> new EntityNotFoundException(Group.class, id));
     }
+
+    public Group followGroup(String groupId, CustomUserDetails details) {
+        Group group = findById(groupId);
+        group.getUserIds().add(details.getUser().getId());
+        return repository.save(group);
+    }
 }
