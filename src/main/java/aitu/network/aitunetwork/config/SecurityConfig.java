@@ -39,7 +39,7 @@ public class SecurityConfig {
             "/api/v1/auth/**",
             "/ws/**",
             "/api/v1/chats/users/**",
-            "**/public/**",
+            "/api/v1/users/public/**",
             "/api/v1/file/**"
     };
 
