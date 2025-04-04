@@ -6,12 +6,14 @@ import aitu.network.aitunetwork.model.entity.FriendRequest;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.FriendRequestStatus;
 import aitu.network.aitunetwork.repository.FriendRequestRepository;
+import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static aitu.network.aitunetwork.model.enums.FriendRequestStatus.*;
 
@@ -21,6 +23,7 @@ import static aitu.network.aitunetwork.model.enums.FriendRequestStatus.*;
 public class FriendshipService {
     private final FriendRequestRepository friendRequestRepository;
     private final UserService userService;
+    private final SecureTalkUserRepository secureTalkUserRepository;
 
     public List<FriendRequest> getRequests(FriendRequestStatus status) {
         var user = userService.getCurrentUser();
@@ -43,6 +46,14 @@ public class FriendshipService {
             throw new ConflictException("user id is null");
         }
         var user = userService.getCurrentUser();
+        List<FriendRequest> sentRequests = getSentRequests(PENDING);
+        sentRequests.stream()
+                .filter(r -> Objects.equals(r.getReceiverId(), id))
+                .findAny()
+                .ifPresent(r -> {
+                    throw new ConflictException("You already have pending friendship request with this user");
+                });
+
         var receiver = userService.getById(id);
         var req = FriendRequest.builder()
                 .receiverId(id)
