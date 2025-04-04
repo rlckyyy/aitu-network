@@ -36,7 +36,7 @@ public class GroupController {
         return groupService.createGroup(dto, details);
     }
 
-    @PostMapping("/follow/{groupId}")
+    @PostMapping("/{groupId}/follow")
     Group followGroup(@PathVariable String groupId, @CurrentUser CustomUserDetails details){
         return groupService.followGroup(groupId, details);
     }
