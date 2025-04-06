@@ -30,13 +30,12 @@ public class GridFsService {
         return gridFsTemplate.findOne(new Query(Criteria.where("_id").is(id)));
     }
 
-    public InputStreamResource downloadFile(String id) throws IOException {
+    public GridFsResource downloadFile(String id) throws IOException {
         GridFSFile gridFSFile = getFile(id);
         if (gridFSFile == null) {
             throw new EntityNotFoundException(String.format("File with %s not found", id));
         }
-        GridFsResource resource = gridFsTemplate.getResource(gridFSFile);
-        return new InputStreamResource(resource.getInputStream());
+        return gridFsTemplate.getResource(gridFSFile);
     }
 
     public void deleteFile(String id) {

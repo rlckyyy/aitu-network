@@ -1,7 +1,7 @@
 server:
   port: 8080
 secure-talk:
-  domain: ${SECURE_TALK_DOMAIN:http://localhost:8080}
+  domain: ${SECURE_TALK_DOMAIN:http://localhost:8080/api}
 spring:
   data:
     mongodb:

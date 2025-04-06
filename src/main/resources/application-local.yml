@@ -4,3 +4,7 @@ spring:
       auto-index-creation: true
       database: secureTalk
       uri: mongodb://aituuser:aitupass@85.202.193.50:27017/aitunetwork?authSource=admin
+
+logging:
+  level:
+    org.springframework.web: debug

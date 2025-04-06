@@ -29,7 +29,7 @@ public class UserService {
         String hexId = fileService.uploadFile(file);
         user.setAvatar(Avatar.builder()
                 .id(hexId)
-                .location(DOMAIN + "/v1/file/" + hexId)
+                .location(fileService.getLinkForResource(hexId))
                 .build());
         secureTalkUserRepository.save(user);
     }

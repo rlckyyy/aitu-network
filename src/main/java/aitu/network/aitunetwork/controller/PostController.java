@@ -2,6 +2,7 @@ package aitu.network.aitunetwork.controller;
 
 import aitu.network.aitunetwork.model.dto.PostDTO;
 import aitu.network.aitunetwork.model.entity.Post;
+import aitu.network.aitunetwork.model.enums.PostType;
 import aitu.network.aitunetwork.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +19,8 @@ public class PostController {
 
     @PostMapping
     Post createPost(
-            @RequestBody PostDTO post,
-            @RequestParam List<MultipartFile> files
+            @RequestPart PostDTO post,
+            @RequestPart List<MultipartFile> files
             ){
         return postService.createPost(post, files);
     }
@@ -30,8 +31,12 @@ public class PostController {
     }
 
     @GetMapping
-    List<Post> searchPosts(@RequestBody PostDTO criteria){
-        return postService.searchPosts(criteria);
+    List<Post> searchPosts(@RequestParam(required = false) String ownerId,
+                           @RequestParam(required = false) String groupId,
+                           @RequestParam(required = false) PostType postType,
+                           @RequestParam(required = false) String description
+                           ){
+        return postService.searchPosts(ownerId, groupId, postType, description);
     }
 
     @PatchMapping("/{id}")
