@@ -34,7 +34,7 @@ public class ChatController {
     private final ChatUserService chatUserService;
 
     @MessageMapping("/chat")
-    public void processMessage(
+    void processMessage(
             @Payload ChatMessage chatMessage
     ) {
         chatRoomService.getChatId(chatMessage.getSender(), chatMessage.getRecipient(), true)
@@ -47,7 +47,7 @@ public class ChatController {
     }
 
     @GetMapping("/messages/{senderId}/{recipientId}/count")
-    public ResponseEntity<Map<String, Long>> countNewMessages(
+    ResponseEntity<Map<String, Long>> countNewMessages(
             @PathVariable String senderId,
             @PathVariable String recipientId
     ) {
@@ -57,7 +57,7 @@ public class ChatController {
     }
 
     @GetMapping("/messages/{sender}/{recipient}")
-    public ResponseEntity<List<ChatMessage>> findChatMessages(@PathVariable String sender,
+    ResponseEntity<List<ChatMessage>> findChatMessages(@PathVariable String sender,
                                                               @PathVariable String recipient) {
         return ResponseEntity
                 .ok(chatMessageService.findChatMessages(sender, recipient));
@@ -65,19 +65,19 @@ public class ChatController {
 
     @ResponseBody
     @GetMapping("/rooms/{email}")
-    public List<ChatRoom> getUserChatHistory(@PathVariable String email) {
+    List<ChatRoom> getUserChatHistory(@PathVariable String email) {
         return chatUserService.getUserChats(email);
     }
 
     @ResponseBody
     @GetMapping("/users/search")
-    public List<User> searchUsers(@RequestParam String query) {
+    List<User> searchUsers(@RequestParam String query) {
         return chatUserService.searchUsers(query);
     }
 
     @ResponseBody
     @GetMapping("/id/{sender}/{recipient}")
-    public Map<String, String> getChatId(@PathVariable String sender, @PathVariable String recipient) {
+    Map<String, String> getChatId(@PathVariable String sender, @PathVariable String recipient) {
         Optional<String> maybeChatId = chatRoomService.getChatId(sender, recipient, false);
         return maybeChatId.map(chatId -> Map.of("chatId", chatId))
                 .orElseGet(() -> Map.of("chatId", ChatUtils.generateChatId(sender, recipient)));

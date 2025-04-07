@@ -45,7 +45,7 @@ public class AuthService {
                 throw new ConflictException("User with email " + request.email() + " already exists");
             }
         }).exceptionally(e -> {
-            throw new RuntimeException("Ошибка при регистрации пользователя: " + e.getMessage(), e);
+            throw new RuntimeException("Error while register of user: " + e.getMessage(), e);
         });
     }
 

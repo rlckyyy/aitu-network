@@ -32,8 +32,10 @@ public class PostService {
                 .postType(postDTO.postType())
                 .description(postDTO.description())
                 .build();
-        List<String> idList = files.stream().map(fileService::uploadFile).map(fileService::getLinkForResource).toList();
-        post.setMediaFileIds(idList);
+        if (files != null) {
+            List<String> idList = files.stream().map(fileService::uploadFile).map(fileService::getLinkForResource).toList();
+            post.setMediaFileIds(idList);
+        }
         return repository.save(post);
     }
 

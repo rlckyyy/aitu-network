@@ -17,7 +17,6 @@ import java.util.List;
 public class Post extends BaseEntity {
     @Id
     private String id;
-    @Indexed(unique = true)
     private String ownerId;
     private String groupId;
     private PostType postType;

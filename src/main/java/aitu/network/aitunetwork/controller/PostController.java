@@ -19,14 +19,14 @@ public class PostController {
 
     @PostMapping
     Post createPost(
-            @RequestPart PostDTO post,
-            @RequestPart List<MultipartFile> files
-            ){
+            @RequestPart(required = false) PostDTO post,
+            @RequestPart(required = false) List<MultipartFile> files
+    ) {
         return postService.createPost(post, files);
     }
 
     @GetMapping("/{id}")
-    Post getById(@PathVariable String id){
+    Post getById(@PathVariable String id) {
         return postService.findById(id);
     }
 
@@ -35,17 +35,17 @@ public class PostController {
                            @RequestParam(required = false) String groupId,
                            @RequestParam(required = false) PostType postType,
                            @RequestParam(required = false) String description
-                           ){
+    ) {
         return postService.searchPosts(ownerId, groupId, postType, description);
     }
 
     @PatchMapping("/{id}")
-    Post updatePost(@RequestBody Map<String, String> map, @PathVariable String id){
+    Post updatePost(@RequestBody Map<String, String> map, @PathVariable String id) {
         return postService.updateDescription(map, id);
     }
 
     @DeleteMapping("/{postId}")
-    Post deleteFiles(@PathVariable String postId, @RequestParam List<String> fileIds){
+    Post deleteFiles(@PathVariable String postId, @RequestParam List<String> fileIds) {
         return postService.deleteFiles(postId, fileIds);
     }
 }

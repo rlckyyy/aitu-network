@@ -26,12 +26,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public CompletableFuture<User> register(@RequestBody @Valid RegisterRequest request) {
+    CompletableFuture<User> register(@RequestBody @Valid RegisterRequest request) {
         return authService.registerUser(request);
     }
 
     @PostMapping("/login")
-    public JwtResponse login(@RequestBody @Valid LoginRequest loginRequest,
+    JwtResponse login(@RequestBody @Valid LoginRequest loginRequest,
                              HttpServletResponse response) {
         JwtResponse jwtResponse = authService.login(loginRequest);
         CookieUtils.addJwtToCookie(response, jwtResponse.token());
@@ -39,12 +39,12 @@ public class AuthController {
     }
 
     @GetMapping("/check")
-    public Map<String, Boolean> checkAuth() {
+    Map<String, Boolean> checkAuth() {
         return authService.checkAuth();
     }
 
     @GetMapping("/me")
-    public UserDTO me(@CurrentUser UserDetails userDetails) {
+    UserDTO me(@CurrentUser UserDetails userDetails) {
         User user = ((CustomUserDetails) userDetails).getUser();
         return UserMapper.toDto(user);
     }
