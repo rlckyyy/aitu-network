@@ -9,8 +9,7 @@ import java.util.List;
 public interface ChatMessageRepository
         extends MongoRepository<ChatMessage, String> {
 
-    long countBySenderAndRecipientAndStatus(
-            String sender, String recipient, MessageStatus status);
+    long countByChatIdAndStatus(String chatId, MessageStatus status);
 
-    List<ChatMessage> findByChatId(String chatId);
+    List<ChatMessage> findByChatIdOrderByCreatedAt(String chatId);
 }

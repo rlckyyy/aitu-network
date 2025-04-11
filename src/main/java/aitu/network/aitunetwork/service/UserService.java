@@ -36,9 +36,8 @@ public class UserService {
 
     public List<User> getUserFriends(String userId) {
         User user = getById(userId);
-        return secureTalkUserRepository.findAllByEmailIn(user.getFriendList());
+        return secureTalkUserRepository.findAllById(user.getFriendList());
     }
-
 
     public User getCurrentUser() {
         var principal = (CustomUserDetails) SecurityContextHolder

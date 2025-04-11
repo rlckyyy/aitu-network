@@ -24,8 +24,7 @@ public class ChatMessage extends BaseEntity implements Serializable {
     @Id
     private String id;
     private String chatId;
-    private String sender;
-    private String recipient;
+    private String senderId;
     private String content;
     private MessageStatus status;
     private MessageType type;

@@ -6,16 +6,18 @@ import aitu.network.aitunetwork.model.entity.FriendRequest;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.FriendRequestStatus;
 import aitu.network.aitunetwork.repository.FriendRequestRepository;
-import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static aitu.network.aitunetwork.model.enums.FriendRequestStatus.*;
+import static aitu.network.aitunetwork.model.enums.FriendRequestStatus.ACCEPTED;
+import static aitu.network.aitunetwork.model.enums.FriendRequestStatus.DECLINED;
+import static aitu.network.aitunetwork.model.enums.FriendRequestStatus.PENDING;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +25,6 @@ import static aitu.network.aitunetwork.model.enums.FriendRequestStatus.*;
 public class FriendshipService {
     private final FriendRequestRepository friendRequestRepository;
     private final UserService userService;
-    private final SecureTalkUserRepository secureTalkUserRepository;
 
     public List<FriendRequest> getRequests(FriendRequestStatus status) {
         var user = userService.getCurrentUser();
@@ -42,7 +43,7 @@ public class FriendshipService {
     }
 
     public FriendRequest sendFriendRequest(String id) {
-        if (id == null || id.isBlank()) {
+        if (!StringUtils.hasText(id)) {
             throw new ConflictException("user id is null");
         }
         var user = userService.getCurrentUser();
@@ -137,7 +138,7 @@ public class FriendshipService {
     private void checkIfAlreadyFriends(User receiver, User sender) {
         boolean alreadyAreFriends = receiver.getFriendList()
                 .stream()
-                .anyMatch(r -> r.equals(sender.getEmail()));
+                .anyMatch(r -> r.equals(sender.getId()));
         if (alreadyAreFriends) {
             throw new ConflictException("Users are already friends");
         }

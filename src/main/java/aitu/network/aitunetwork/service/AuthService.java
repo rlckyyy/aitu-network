@@ -33,15 +33,12 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final CustomUserDetailsService customUserDetailsService;
-    private final ChatUserService chatUserService;
     private final Executor executor;
 
     public CompletableFuture<User> registerUser(RegisterRequest request) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                User user = secureTalkUserRepository.save(mapUserDTOToUser(request));
-                chatUserService.saveChatUser(user);
-                return user;
+                return secureTalkUserRepository.save(mapUserDTOToUser(request));
             } catch (DuplicateKeyException e) {
                 throw new ConflictException("User with email " + request.email() + " already exists");
             }
@@ -68,7 +65,6 @@ public class AuthService {
                 .password(passwordEncoder.encode(userDTO.password()))
                 .roles(List.of(Role.USER))
                 .friendList(new ArrayList<>())
-                .publicKey(userDTO.publicKey())
                 .build();
     }
 

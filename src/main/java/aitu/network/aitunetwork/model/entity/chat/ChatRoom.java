@@ -1,12 +1,16 @@
 package aitu.network.aitunetwork.model.entity.chat;
 
+import aitu.network.aitunetwork.model.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -18,6 +22,9 @@ public class ChatRoom {
     @Id
     private String id;
     private String chatId;
-    private String sender;
-    private String recipient;
+    private String title;
+    @DBRef(lazy = true)
+    private List<User> participants;
+    private ChatRoomType chatRoomType;
+    private Boolean empty;
 }

@@ -1,85 +1,83 @@
 package aitu.network.aitunetwork.controller;
 
-import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
-import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
+import aitu.network.aitunetwork.common.annotations.CurrentUser;
+import aitu.network.aitunetwork.config.security.CustomUserDetails;
+import aitu.network.aitunetwork.model.dto.UserShortDTO;
+import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
+import aitu.network.aitunetwork.model.dto.chat.NewChatRoomDTO;
 import aitu.network.aitunetwork.model.entity.User;
-import aitu.network.aitunetwork.service.ChatMessageService;
-import aitu.network.aitunetwork.service.ChatRoomService;
-import aitu.network.aitunetwork.service.ChatUserService;
-import aitu.network.aitunetwork.service.util.ChatUtils;
+import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
+import aitu.network.aitunetwork.service.ChatService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/api/v1/chats")
 @RequiredArgsConstructor
 public class ChatController {
 
-    private final SimpMessagingTemplate messagingTemplate;
-    private final ChatMessageService chatMessageService;
-    private final ChatRoomService chatRoomService;
-    private final ChatUserService chatUserService;
+    private final ChatService chatService;
 
     @MessageMapping("/chat")
-    void processMessage(
-            @Payload ChatMessage chatMessage
+    public void processMessage(
+            @Payload ChatMessage newChatMessage
     ) {
-        chatRoomService.getChatId(chatMessage.getSender(), chatMessage.getRecipient(), true)
-                .ifPresent(chatMessage::setChatId);
-        ChatMessage saved = chatMessageService.save(chatMessage);
-        messagingTemplate.convertAndSendToUser(
-                chatMessage.getRecipient(), "/queue/messages",
-                saved
-        );
-    }
-
-    @GetMapping("/messages/{senderId}/{recipientId}/count")
-    ResponseEntity<Map<String, Long>> countNewMessages(
-            @PathVariable String senderId,
-            @PathVariable String recipientId
-    ) {
-        long count = chatMessageService.countNewMessages(senderId, recipientId);
-        return ResponseEntity
-                .ok(Map.of("count", count));
-    }
-
-    @GetMapping("/messages/{sender}/{recipient}")
-    ResponseEntity<List<ChatMessage>> findChatMessages(@PathVariable String sender,
-                                                              @PathVariable String recipient) {
-        return ResponseEntity
-                .ok(chatMessageService.findChatMessages(sender, recipient));
+        chatService.processMessage(newChatMessage);
     }
 
     @ResponseBody
-    @GetMapping("/rooms/{email}")
-    List<ChatRoom> getUserChatHistory(@PathVariable String email) {
-        return chatUserService.getUserChats(email);
+    @GetMapping("/messages/{chatId}/count")
+    public ResponseEntity<Map<String, Long>> countNewMessages(
+            @PathVariable String chatId
+    ) {
+        return ResponseEntity.ok(chatService.countNewMessages(chatId));
+    }
+
+    @ResponseBody
+    @GetMapping("/messages/{chatId}")
+    public List<ChatMessage> findChatMessages(@PathVariable String chatId) {
+        return chatService.findChatMessages(chatId);
+    }
+
+    @ResponseBody
+    @GetMapping("/rooms/{id}")
+    public List<ChatRoomDTO> getUserChatRooms(@PathVariable String id) {
+        return chatService.getUserChatRooms(id);
     }
 
     @ResponseBody
     @GetMapping("/users/search")
-    List<User> searchUsers(@RequestParam String query) {
-        return chatUserService.searchUsers(query);
+    public List<User> searchUsers(@RequestParam String query, @CurrentUser CustomUserDetails currentUser) {
+        return chatService.searchUsers(query, currentUser.getUser());
     }
 
     @ResponseBody
-    @GetMapping("/id/{sender}/{recipient}")
-    Map<String, String> getChatId(@PathVariable String sender, @PathVariable String recipient) {
-        Optional<String> maybeChatId = chatRoomService.getChatId(sender, recipient, false);
-        return maybeChatId.map(chatId -> Map.of("chatId", chatId))
-                .orElseGet(() -> Map.of("chatId", ChatUtils.generateChatId(sender, recipient)));
+    @PostMapping("/rooms")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ChatRoomDTO createChatRoom(@Valid @RequestBody NewChatRoomDTO chatRoom, @CurrentUser CustomUserDetails userDetails) {
+        return chatService.createChatRoom(chatRoom, userDetails.getUser());
+    }
+
+    @ResponseBody
+    @GetMapping("/users/related")
+    public Collection<UserShortDTO> getRelatedUsers(@CurrentUser CustomUserDetails user) {
+        return chatService.getRelatedUsers(user.getUser());
     }
 }

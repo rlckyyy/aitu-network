@@ -19,13 +19,17 @@ public class ChatAppEventListener {
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
-        CustomUserDetails userDetails = ((CustomUserDetails) ((UsernamePasswordAuthenticationToken) event.getUser()).getPrincipal());
-        chatUserService.connectChatUser(userDetails.getUser());
+        UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) event.getUser();
+        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+            chatUserService.connectChatUser(userDetails.getUser());
+        }
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-        CustomUserDetails userDetails = ((CustomUserDetails) ((UsernamePasswordAuthenticationToken) event.getUser()).getPrincipal());
-        chatUserService.disconnectChatUser(userDetails.getUser());
+        UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) event.getUser();
+        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+            chatUserService.disconnectChatUser(userDetails.getUser());
+        }
     }
 }

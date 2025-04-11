@@ -1,9 +1,9 @@
 package aitu.network.aitunetwork.service;
 
-import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
-import aitu.network.aitunetwork.model.entity.chat.ChatUser;
+import aitu.network.aitunetwork.exception.NotFoundException;
+import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
 import aitu.network.aitunetwork.model.entity.User;
-import aitu.network.aitunetwork.repository.ChatUserRepository;
+import aitu.network.aitunetwork.model.entity.chat.ChatUser;
 import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +11,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -24,15 +22,8 @@ import java.util.List;
 public class ChatUserService {
 
     private final MongoTemplate mongoTemplate;
-    private final ChatUserRepository chatUserRepository;
     private final ChatRoomService chatRoomService;
     private final SecureTalkUserRepository secureTalkUserRepository;
-    private final UserService userService;
-
-    public void saveChatUser(User user) {
-        ChatUser chatUser = mapToChatUser(user);
-        chatUserRepository.save(chatUser);
-    }
 
     public void connectChatUser(User user) {
         updateUserStatus(user, true, ChatUser.Fields.connectedOn);
@@ -51,25 +42,19 @@ public class ChatUserService {
         mongoTemplate.updateFirst(query, update, ChatUser.class);
     }
 
-    private ChatUser mapToChatUser(User user) {
-        return new ChatUser(user, null, null, null, null);
+    public List<ChatRoomDTO> getUserChats(String userId) {
+        return chatRoomService.getUserChatRooms(fetchUser(userId));
     }
 
-    public List<ChatRoom> getUserChats(String email) {
-        return chatRoomService.getUserChatRooms(email);
-    }
-
-    public List<User> searchUsers(String query) {
-        List<User> users = secureTalkUserRepository.findAllByEmailContainsIgnoreCase(query);
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            return users;
-        }
-
-        String currentUserEmail = userService.getCurrentUser().getEmail();
+    public List<User> searchUsers(String query, User currentUser) {
+        List<User> users = secureTalkUserRepository.findAllByEmailContainsIgnoreCaseOrUsernameContainsIgnoreCase(query, query);
         return users.stream()
-                .filter(user -> !user.getEmail().equalsIgnoreCase(currentUserEmail))
+                .filter(user -> !user.getEmail().equalsIgnoreCase(currentUser.getEmail()))
                 .toList();
+    }
+
+    User fetchUser(String userId) {
+        return secureTalkUserRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User with id (" + userId + ") not found"));
     }
 }
