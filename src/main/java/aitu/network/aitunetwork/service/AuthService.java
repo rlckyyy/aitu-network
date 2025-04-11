@@ -22,8 +22,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +34,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final CustomUserDetailsService customUserDetailsService;
     private final ChatUserService chatUserService;
+    private final Executor executor;
 
     public CompletableFuture<User> registerUser(RegisterRequest request) {
         return CompletableFuture.supplyAsync(() -> {
@@ -44,7 +45,7 @@ public class AuthService {
             } catch (DuplicateKeyException e) {
                 throw new ConflictException("User with email " + request.email() + " already exists");
             }
-        }).exceptionally(e -> {
+        }, executor).exceptionally(e -> {
             throw new RuntimeException("Error while register of user: " + e.getMessage(), e);
         });
     }
