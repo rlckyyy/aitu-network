@@ -19,5 +19,6 @@ public class CheckFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         log.warn("CHECK FILTER, URI: {}", request.getRequestURI());
         log.warn("CHECK FILTER {}", request);
+        filterChain.doFilter(servletRequest, servletResponse);
     }
 }
