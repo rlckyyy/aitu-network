@@ -67,20 +67,12 @@ public class FriendshipService {
 
     public List<FriendRequest> getSentRequests(FriendRequestStatus status) {
         var user = userService.getCurrentUser();
-        List<FriendRequest> friendRequests;
-        log.info("status is {}", status);
-        switch (status) {
-            case PENDING -> friendRequests = friendRequestRepository.findBySenderIdAndStatus(user.getId(), PENDING);
-            case ACCEPTED -> friendRequests = friendRequestRepository.findBySenderIdAndStatus(user.getId(), ACCEPTED);
-            case DECLINED -> friendRequests = friendRequestRepository.findBySenderIdAndStatus(user.getId(), DECLINED);
-            case null -> friendRequests = friendRequestRepository.findBySenderId(user.getId());
-            default -> {
-                friendRequests = new ArrayList<>();
-                log.info("default case sent req");
-            }
-        }
-        friendRequests.forEach(System.out::println);
-        return friendRequests;
+        return switch (status) {
+            case PENDING -> friendRequestRepository.findBySenderIdAndStatus(user.getId(), PENDING);
+            case ACCEPTED -> friendRequestRepository.findBySenderIdAndStatus(user.getId(), ACCEPTED);
+            case DECLINED -> friendRequestRepository.findBySenderIdAndStatus(user.getId(), DECLINED);
+            case null -> friendRequestRepository.findBySenderId(user.getId());
+        };
     }
 
     public void deleteRequest(String requestId) {
@@ -88,7 +80,8 @@ public class FriendshipService {
             throw new ConflictException("requestId is null");
         }
         var currentUser = userService.getCurrentUser();
-        var friendRequest = friendRequestRepository.findById(requestId).orElseThrow(() -> new EntityNotFoundException(FriendRequest.class, requestId));
+        var friendRequest = friendRequestRepository.findById(requestId)
+                .orElseThrow(() -> new EntityNotFoundException(FriendRequest.class, requestId));
         if (!currentUser.getId().equals(friendRequest.getSenderId())) {
             throw new ConflictException("User is not owner of the request");
         }
@@ -136,10 +129,7 @@ public class FriendshipService {
     }
 
     private void checkIfAlreadyFriends(User receiver, User sender) {
-        boolean alreadyAreFriends = receiver.getFriendList()
-                .stream()
-                .anyMatch(r -> r.equals(sender.getId()));
-        if (alreadyAreFriends) {
+        if (receiver.getFriendList().contains(sender.getId())) {
             throw new ConflictException("Users are already friends");
         }
     }

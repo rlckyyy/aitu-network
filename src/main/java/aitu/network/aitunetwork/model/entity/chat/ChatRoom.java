@@ -27,4 +27,12 @@ public class ChatRoom {
     private List<User> participants;
     private ChatRoomType chatRoomType;
     private Boolean empty;
+
+    public boolean addParticipant(User participant) {
+        return participants.add(participant);
+    }
+
+    public boolean removeParticipant(User participant) {
+        return participants.remove(participant);
+    }
 }

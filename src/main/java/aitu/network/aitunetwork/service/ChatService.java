@@ -1,5 +1,6 @@
 package aitu.network.aitunetwork.service;
 
+import aitu.network.aitunetwork.exception.NotFoundException;
 import aitu.network.aitunetwork.model.dto.UserShortDTO;
 import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
 import aitu.network.aitunetwork.model.dto.chat.NewChatRoomDTO;
@@ -38,7 +39,9 @@ public class ChatService {
     ) {
         ChatMessage chatMessage = chatMessageService.save(newChatMessage);
         ChatRoom chatRoom = chatRoomService.getChatRoom(chatMessage.getChatId());
-        chatRoom = chatRoomService.markChatRoom(chatRoom, false);
+        if (chatRoom.getEmpty()) {
+            chatRoom = chatRoomService.markChatRoom(chatRoom, false);
+        }
         List<User> participants = chatRoom.getParticipants().stream()
                 .filter(participant -> !participant.getId().equals(chatMessage.getSenderId()))
                 .toList();
@@ -46,7 +49,10 @@ public class ChatService {
 
         chatRoom.getParticipants().stream()
                 .filter(participant -> !participant.getId().equals(chatMessage.getSenderId()))
-                .forEach(participant -> messagingTemplate.convertAndSendToUser(participant.getId(), "/queue/messages", chatMessage));
+                .forEach(participant -> {
+                    log.info("Sending message to {}", participant.getUsername());
+                    messagingTemplate.convertAndSendToUser(participant.getId(), "/queue/messages", chatMessage);
+                });
     }
 
     public Map<String, Long> countNewMessages(
@@ -72,6 +78,15 @@ public class ChatService {
         return chatRoomService.createChatRoom(chatRoom, user);
     }
 
+    public <T> Collection<T> getRelatedUsers(String userId, Function<UserShortDTO, T> userFunction) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+
+        return getRelatedUsers(user).stream()
+                .map(userFunction)
+                .toList();
+    }
+
     public Collection<UserShortDTO> getRelatedUsers(User user) {
         Map<String, UserShortDTO> contactedUsersMap = chatRoomService.getUserChatRooms(user).stream()
                 .map(ChatRoomDTO::participants)
@@ -92,5 +107,13 @@ public class ChatService {
                         HashSet::add,
                         AbstractCollection::addAll
                 );
+    }
+
+    public void addParticipantToChatRoom(String chatRoomId, String participantId) {
+        chatRoomService.actionParticipantToChatRoom(chatRoomId, participantId, ChatRoom::addParticipant);
+    }
+
+    public void deleteUserFromChatRoom(String chatRoomId, String participantId) {
+        chatRoomService.actionParticipantToChatRoom(chatRoomId, participantId, ChatRoom::removeParticipant);
     }
 }

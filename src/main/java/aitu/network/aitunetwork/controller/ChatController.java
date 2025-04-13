@@ -15,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -71,7 +73,8 @@ public class ChatController {
     @ResponseBody
     @PostMapping("/rooms")
     @ResponseStatus(HttpStatus.CREATED)
-    public ChatRoomDTO createChatRoom(@Valid @RequestBody NewChatRoomDTO chatRoom, @CurrentUser CustomUserDetails userDetails) {
+    public ChatRoomDTO createChatRoom(@Valid @RequestBody NewChatRoomDTO chatRoom,
+                                      @CurrentUser CustomUserDetails userDetails) {
         return chatService.createChatRoom(chatRoom, userDetails.getUser());
     }
 
@@ -79,5 +82,19 @@ public class ChatController {
     @GetMapping("/users/related")
     public Collection<UserShortDTO> getRelatedUsers(@CurrentUser CustomUserDetails user) {
         return chatService.getRelatedUsers(user.getUser());
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PatchMapping("/rooms/{chatRoomId}/{participantId}")
+    public void addUserToChatRoom(@PathVariable String chatRoomId, @PathVariable String participantId) {
+        chatService.addParticipantToChatRoom(chatRoomId, participantId);
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/rooms/{chatRoomId}/{participantId}")
+    public void deleteUserFromChatRoom(@PathVariable String chatRoomId, @PathVariable String participantId) {
+        chatService.deleteUserFromChatRoom(chatRoomId, participantId);
     }
 }

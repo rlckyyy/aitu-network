@@ -6,6 +6,7 @@ import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
 import aitu.network.aitunetwork.model.entity.chat.ChatRoomType;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,7 +17,7 @@ public class ChatUtils {
 
     public static String generateChatId(NewChatRoomDTO chatRoom) {
         return chatRoom.chatRoomType().equals(ChatRoomType.ONE_TO_ONE)
-                ? generateOneToOneChatId(chatRoom.participantsIds())
+                ? generateOneToOneChatId(new ArrayList<>(chatRoom.participantsIds()))
                 : UUID.randomUUID().toString();
     }
 

@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 import static aitu.network.aitunetwork.model.mapper.ChatMapper.mapToChatRoomDTO;
@@ -43,14 +44,16 @@ public class ChatRoomService {
 
     public ChatRoomDTO createChatRoom(NewChatRoomDTO dto, User user) {
         if (dto.chatRoomType().equals(ChatRoomType.ONE_TO_ONE)) {
-            List<String> chatIds = generateTwoPossibleChatIds(dto.participantsIds());
+            List<String> chatIds = generateTwoPossibleChatIds(new ArrayList<>(dto.participantsIds()));
             Optional<ChatRoom> maybeChatRoom = chatRoomRepository.findByChatIdIn(chatIds);
             if (maybeChatRoom.isPresent()) {
                 return mapToChatRoomDTO(maybeChatRoom.get(), user);
             }
         }
         List<User> participants = new ArrayList<>(userRepository.findAllById(dto.participantsIds()));
-        participants.add(user);
+        if (!dto.participantsIds().contains(user.getId())) {
+            participants.add(user);
+        }
         ChatRoom chatRoom = chatRoomRepository.save(ChatMapper.mapToChatRoom(dto, participants));
         return mapToChatRoomDTO(chatRoom, user);
     }
@@ -63,5 +66,23 @@ public class ChatRoomService {
     public ChatRoom markChatRoom(ChatRoom chatRoom, boolean empty) {
         chatRoom.setEmpty(empty);
         return chatRoomRepository.save(chatRoom);
+    }
+
+    public void actionParticipantToChatRoom(String chatRoomId, String participantId, BiFunction<ChatRoom, User, Boolean> action) {
+        User participant = fetchUser(participantId);
+        ChatRoom chatRoom = fetch(chatRoomId);
+
+        action.apply(chatRoom, participant);
+        chatRoomRepository.save(chatRoom);
+    }
+
+    public User fetchUser(String id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User room with id: " + id + " not found"));
+    }
+
+    public ChatRoom fetch(String id) {
+        return chatRoomRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Chat room with id: " + id + " not found"));
     }
 }
