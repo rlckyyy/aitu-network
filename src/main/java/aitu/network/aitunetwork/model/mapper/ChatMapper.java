@@ -5,7 +5,6 @@ import aitu.network.aitunetwork.model.dto.chat.NewChatRoomDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
 import aitu.network.aitunetwork.model.entity.chat.ChatRoomType;
-import aitu.network.aitunetwork.service.util.ChatUtils;
 
 import java.util.List;
 
@@ -14,14 +13,13 @@ import static java.util.Collections.emptyList;
 public class ChatMapper {
 
     /**
-     * Maps only new chat room instance
+     * Maps only new chat room instance.
      * */
-    public static ChatRoom mapToChatRoom(NewChatRoomDTO dto, List<User> participants) {
-        String chatId = ChatUtils.generateChatId(dto);
+    public static ChatRoom mapToNewChatRoom(NewChatRoomDTO dto, List<User> participants) {
         return ChatRoom
                 .builder()
-                .chatId(chatId)
-                .title(dto.chatRoomType().equals(ChatRoomType.GROUP) ? dto.title() : null)
+                .chatId(dto.chatRoomType().generateChatId(dto.participantsIds()))
+                .title(dto.chatRoomType().equals(ChatRoomType.ONE_TO_ONE) ? null : dto.title())
                 .participants(participants)
                 .chatRoomType(dto.chatRoomType())
                 .empty(true)
@@ -32,7 +30,7 @@ public class ChatMapper {
         return new ChatRoomDTO(
                 chatRoom.getId(),
                 chatRoom.getChatId(),
-                ChatUtils.resolveChatRoomTitle(chatRoom, user),
+                chatRoom.getChatRoomType().resolveTitle(chatRoom, user),
                 UserMapper.toShortDtos(chatRoom.getParticipants() == null ? emptyList() : chatRoom.getParticipants()),
                 chatRoom.getChatRoomType(),
                 chatRoom.getEmpty()

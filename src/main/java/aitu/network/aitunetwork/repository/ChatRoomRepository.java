@@ -9,5 +9,5 @@ import java.util.Optional;
 
 public interface ChatRoomRepository extends MongoRepository<ChatRoom, String> {
     List<ChatRoom> findAllByParticipantsContains(User participant);
-    Optional<ChatRoom> findByChatIdIn(List<String> chatIds);
+    Optional<ChatRoom> findByChatId(String chatId);
 }
