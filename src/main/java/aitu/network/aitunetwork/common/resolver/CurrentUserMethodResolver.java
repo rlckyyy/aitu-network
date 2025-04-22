@@ -29,7 +29,8 @@ public class CurrentUserMethodResolver implements HandlerMethodArgumentResolver 
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+
+        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
             return userDetails;
         } else {
             throw new UnauthorizedException("User not authorized");

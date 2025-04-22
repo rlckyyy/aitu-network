@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,29 +25,20 @@ public class FriendshipService {
     private final FriendRequestRepository friendRequestRepository;
     private final UserService userService;
 
-    public List<FriendRequest> getRequests(FriendRequestStatus status) {
-        var user = userService.getCurrentUser();
-        List<FriendRequest> friendRequests;
-        switch (status) {
-            case PENDING -> friendRequests = friendRequestRepository.findByReceiverIdAndStatus(user.getId(), PENDING);
-            case ACCEPTED -> friendRequests = friendRequestRepository.findByReceiverIdAndStatus(user.getId(), ACCEPTED);
-            case DECLINED -> friendRequests = friendRequestRepository.findByReceiverIdAndStatus(user.getId(), DECLINED);
-            case null -> friendRequests = friendRequestRepository.findByReceiverId(user.getId());
-            default -> {
-                friendRequests = new ArrayList<>();
-                log.info("default case receive req");
-            }
-        }
-        return friendRequests;
+    public List<FriendRequest> getRequests(FriendRequestStatus status, User user) {
+        return switch (status) {
+            case PENDING -> friendRequestRepository.findByReceiverIdAndStatus(user.getId(), PENDING);
+            case ACCEPTED -> friendRequestRepository.findByReceiverIdAndStatus(user.getId(), ACCEPTED);
+            case DECLINED -> friendRequestRepository.findByReceiverIdAndStatus(user.getId(), DECLINED);
+            case null -> friendRequestRepository.findByReceiverId(user.getId());
+        };
     }
 
-    public FriendRequest sendFriendRequest(String id) {
+    public FriendRequest sendFriendRequest(String id, User user) {
         if (!StringUtils.hasText(id)) {
             throw new ConflictException("user id is null");
         }
-        var user = userService.getCurrentUser();
-        List<FriendRequest> sentRequests = getSentRequests(PENDING);
-        sentRequests.stream()
+        getSentRequests(PENDING, user).stream()
                 .filter(r -> Objects.equals(r.getReceiverId(), id))
                 .findAny()
                 .ifPresent(r -> {
@@ -65,8 +55,7 @@ public class FriendshipService {
         return friendRequestRepository.save(req);
     }
 
-    public List<FriendRequest> getSentRequests(FriendRequestStatus status) {
-        var user = userService.getCurrentUser();
+    public List<FriendRequest> getSentRequests(FriendRequestStatus status, User user) {
         return switch (status) {
             case PENDING -> friendRequestRepository.findBySenderIdAndStatus(user.getId(), PENDING);
             case ACCEPTED -> friendRequestRepository.findBySenderIdAndStatus(user.getId(), ACCEPTED);
@@ -75,11 +64,10 @@ public class FriendshipService {
         };
     }
 
-    public void deleteRequest(String requestId) {
+    public void deleteRequest(String requestId, User currentUser) {
         if (requestId == null || requestId.isBlank()) {
             throw new ConflictException("requestId is null");
         }
-        var currentUser = userService.getCurrentUser();
         var friendRequest = friendRequestRepository.findById(requestId)
                 .orElseThrow(() -> new EntityNotFoundException(FriendRequest.class, requestId));
         if (!currentUser.getId().equals(friendRequest.getSenderId())) {
@@ -89,10 +77,9 @@ public class FriendshipService {
     }
 
 
-    public FriendRequest respondRequest(String requestId, FriendRequestStatus status) {
+    public FriendRequest respondRequest(String requestId, FriendRequestStatus status, User receiver) {
         FriendRequest request = findFriendRequestById(requestId);
 
-        var receiver = userService.getCurrentUser();
         var sender = userService.getById(request.getSenderId());
 
         checkIfAlreadyFriends(receiver, sender);
@@ -100,27 +87,10 @@ public class FriendshipService {
 
         if (ACCEPTED.equals(status)) {
             acceptFriendRequest(receiver, sender);
-//            addToNeo4j(receiver, sender);
         }
         request.setStatus(status);
         return saveRequest(request);
     }
-
-//    private void addToNeo4j(User receiver, User sender) {
-//        var receiver4j = create4jUser(receiver);
-//        var sender4j = create4jUser(sender);
-//        receiver4j.getFriendsOut().add(sender4j);
-//        sender4j.getFriendsOut().add(receiver4j);
-//        user4jRepository.save(receiver4j);
-//        user4jRepository.save(sender4j);
-//    }
-//
-//    private static UserNeo4J create4jUser(User receiver) {
-//        return UserNeo4J.builder()
-//                .email(receiver.getEmail())
-//                .username(receiver.getUsername())
-//                .build();
-//    }
 
     private FriendRequest findFriendRequestById(String requestId) {
         return friendRequestRepository
@@ -145,8 +115,7 @@ public class FriendshipService {
 
     private void acceptFriendRequest(User receiver, User sender) {
         receiver.addFriendList(sender);
-        userService.save(receiver);
-        userService.save(sender);
+        userService.save(List.of(receiver, sender));
     }
 
     private FriendRequest saveRequest(FriendRequest request) {

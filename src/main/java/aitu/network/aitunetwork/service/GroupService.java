@@ -28,8 +28,8 @@ public class GroupService {
         }
         var group = Group.builder()
                 .name(dto.name())
-                .ownerId(details.getUser().getId())
-                .userIds(List.of(details.getUser().getId()))
+                .ownerId(details.user().getId())
+                .userIds(List.of(details.user().getId()))
                 .description(dto.description())
                 .type(dto.accessType())
                 .build();
@@ -56,7 +56,7 @@ public class GroupService {
 
     public Group followGroup(String groupId, CustomUserDetails details) {
         Group group = findById(groupId);
-        group.getUserIds().add(details.getUser().getId());
+        group.getUserIds().add(details.user().getId());
         return repository.save(group);
     }
 }

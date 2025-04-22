@@ -24,8 +24,7 @@ public class UserService {
     @Value("${secure-talk.domain}")
     private String DOMAIN;
 
-    public void setProfilePhoto(MultipartFile file) {
-        User user = getCurrentUser();
+    public void setProfilePhoto(MultipartFile file, User user) {
         String hexId = fileService.uploadFile(file);
         user.setAvatar(Avatar.builder()
                 .id(hexId)
@@ -55,18 +54,16 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException(User.class, idOrEmail));
     }
 
-    public User updateUser(UserUpdateDTO userDTO) {
-        User currentUser = getCurrentUser();
-        currentUser.setUsername(userDTO.username());
-        currentUser.setDescription(userDTO.description());
-        return secureTalkUserRepository.save(currentUser);
+    public User updateUser(UserUpdateDTO userDTO, User user) {
+        user.setUsername(userDTO.username());
+        user.setDescription(userDTO.description());
+        return secureTalkUserRepository.save(user);
     }
 
-    public void deleteFriendById(String userId) {
+    public void deleteFriendById(String userId, User user) {
         if (userId == null || userId.isBlank()) {
             throw new ConflictException("User id is empty or null");
         }
-        User user = getCurrentUser();
         if (user.getFriendList() == null || user.getFriendList().isEmpty()) {
             throw new ConflictException("Friend List is empty");
         }
@@ -77,14 +74,13 @@ public class UserService {
         secureTalkUserRepository.save(user);
     }
 
-    public User save(User user) {
-        return secureTalkUserRepository.save(user);
+    public List<User> save(Iterable<User> users) {
+        return secureTalkUserRepository.saveAll(users);
     }
 
-    public void deleteProfilePhoto() {
-        User currentUser = getCurrentUser();
-        fileService.deleteFile(currentUser.getAvatar().getId());
-        currentUser.setAvatar(null);
-        secureTalkUserRepository.save(currentUser);
+    public void deleteProfilePhoto(User user) {
+        fileService.deleteFile(user.getAvatar().getId());
+        user.setAvatar(null);
+        secureTalkUserRepository.save(user);
     }
 }

@@ -10,11 +10,16 @@ import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
 import aitu.network.aitunetwork.service.ChatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.support.MethodArgumentNotValidException;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -23,12 +28,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/api/v1/chats")
@@ -39,14 +48,33 @@ public class ChatController {
 
     @MessageMapping("/chat")
     public void processMessage(
-            @Payload ChatMessage newChatMessage
+            @Payload @Valid ChatMessage newChatMessage
     ) {
         chatService.processMessage(newChatMessage);
     }
 
+    @MessageExceptionHandler(MethodArgumentNotValidException.class)
+    @SendToUser("/queue/messages/errors") // resolves as /user/{session-id}/messages/queue/errors
+    public Map<String, Object> handleValidationException(MethodArgumentNotValidException e) {
+        Assert.notNull(e.getFailedMessage(), "failedMessage must not be null");
+        Assert.notNull(e.getBindingResult(), "bindingResult must not be null");
+        Map<String, Object> errorsMap = new HashMap<>();
+        if (e.getFailedMessage().getPayload() instanceof ChatMessage chatMessage) {
+            errorsMap.put("chatMessage", chatMessage);
+        }
+
+        String errors = e.getBindingResult()
+                .getAllErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(Collectors.joining(","));
+        errorsMap.put("errors", errors);
+
+        return errorsMap;
+    }
+
     @ResponseBody
     @GetMapping("/messages/{chatId}/count")
-    public ResponseEntity<Map<String, Long>> countNewMessages(
+    public ResponseEntity<Map<String, Object>> countNewMessages(
             @PathVariable String chatId
     ) {
         return ResponseEntity.ok(chatService.countNewMessages(chatId));
@@ -67,7 +95,7 @@ public class ChatController {
     @ResponseBody
     @GetMapping("/users/search")
     public List<User> searchUsers(@RequestParam String query, @CurrentUser CustomUserDetails currentUser) {
-        return chatService.searchUsers(query, currentUser.getUser());
+        return chatService.searchUsers(query, currentUser.user());
     }
 
     @ResponseBody
@@ -75,13 +103,13 @@ public class ChatController {
     @ResponseStatus(HttpStatus.CREATED)
     public ChatRoomDTO createChatRoom(@Valid @RequestBody NewChatRoomDTO chatRoom,
                                       @CurrentUser CustomUserDetails userDetails) {
-        return chatService.createChatRoom(chatRoom, userDetails.getUser());
+        return chatService.createChatRoom(chatRoom, userDetails.user());
     }
 
     @ResponseBody
     @GetMapping("/users/related")
     public Collection<UserShortDTO> getRelatedUsers(@CurrentUser CustomUserDetails user) {
-        return chatService.getRelatedUsers(user.getUser());
+        return chatService.getRelatedUsers(user.user());
     }
 
     @ResponseBody
@@ -96,5 +124,15 @@ public class ChatController {
     @DeleteMapping("/rooms/{chatRoomId}/{participantId}")
     public void deleteUserFromChatRoom(@PathVariable String chatRoomId, @PathVariable String participantId) {
         chatService.deleteUserFromChatRoom(chatRoomId, participantId);
+    }
+
+    @ResponseBody
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/messages/files")
+    public ChatMessage saveAudioMessage(
+            @Valid @RequestPart("chatMessage") ChatMessage chatMessage,
+            @RequestPart("audioFile") MultipartFile audioFile
+    ) {
+        return chatService.saveAudioMessage(chatMessage, audioFile);
     }
 }

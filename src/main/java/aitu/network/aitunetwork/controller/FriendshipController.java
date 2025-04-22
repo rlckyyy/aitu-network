@@ -1,12 +1,22 @@
 package aitu.network.aitunetwork.controller;
 
+import aitu.network.aitunetwork.common.annotations.CurrentUser;
+import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.entity.FriendRequest;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.FriendRequestStatus;
 import aitu.network.aitunetwork.service.FriendshipService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -18,8 +28,8 @@ public class FriendshipController {
 
     @GetMapping("/received")
     List<FriendRequest> getReceivedFriendRequests(
-            @RequestParam(required = false) FriendRequestStatus status) {
-        return friendshipService.getRequests(status);
+            @RequestParam(required = false) FriendRequestStatus status, @CurrentUser CustomUserDetails user) {
+        return friendshipService.getRequests(status, user.user());
     }
     @GetMapping("/{userId}")
     List<User> getUserFriends(@PathVariable String userId){
@@ -28,25 +38,28 @@ public class FriendshipController {
 
     @GetMapping("/sent")
     List<FriendRequest> getSentFriendRequests(
-            @RequestParam(required = false) FriendRequestStatus status) {
-        return friendshipService.getSentRequests(status);
+            @RequestParam(required = false) FriendRequestStatus status,
+            @CurrentUser CustomUserDetails user
+    ) {
+        return friendshipService.getSentRequests(status, user.user());
     }
 
     @PostMapping("/request/{userId}")
-    FriendRequest sendFriendRequest(@PathVariable String userId) {
-        return friendshipService.sendFriendRequest(userId);
+    FriendRequest sendFriendRequest(@PathVariable String userId, @CurrentUser CustomUserDetails user) {
+        return friendshipService.sendFriendRequest(userId, user.user());
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/request/{requestId}")
-    void deleteFriendRequest(@PathVariable String requestId) {
-        friendshipService.deleteRequest(requestId);
+    void deleteFriendRequest(@PathVariable String requestId, @CurrentUser CustomUserDetails user) {
+        friendshipService.deleteRequest(requestId, user.user());
     }
 
     @PutMapping("/request/{requestId}/respond")
     FriendRequest respondRequest(@RequestParam FriendRequestStatus status,
-                                 @PathVariable String requestId) {
-        return friendshipService.respondRequest(requestId, status);
+                                 @PathVariable String requestId,
+                                 @CurrentUser CustomUserDetails user) {
+        return friendshipService.respondRequest(requestId, status, user.user());
     }
 
 }

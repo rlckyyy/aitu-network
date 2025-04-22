@@ -1,7 +1,8 @@
 package aitu.network.aitunetwork.model.enums;
 
 public enum MessageType {
-    MESSAGE,
+    MESSAGE_TEXT,
+    MESSAGE_AUDIO,
     JOIN,
-    LEAVE
+    LEAVE,
 }

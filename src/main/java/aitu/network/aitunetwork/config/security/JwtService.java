@@ -27,8 +27,8 @@ public class JwtService {
     public String generateToken(UserDetails userDetails) {
         Map<String, Object> claims = new HashMap<>();
         if (userDetails instanceof CustomUserDetails customUserDetails) {
-            claims.put("id", customUserDetails.getUser().getId());
-            claims.put("email", customUserDetails.getUser().getEmail());
+            claims.put("id", customUserDetails.user().getId());
+            claims.put("email", customUserDetails.user().getEmail());
             claims.put("role", customUserDetails.getAuthorities());
         }
         return generateToken(claims, userDetails);
@@ -45,10 +45,11 @@ public class JwtService {
     }
 
     private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        long currentTimeMillis = System.currentTimeMillis();
         return Jwts.builder().claims(extraClaims)
                 .subject(userDetails.getUsername())
-                .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 24 * 60 * 60 * 1000))
+                .issuedAt(new Date(currentTimeMillis))
+                .expiration(new Date(currentTimeMillis + 24 * 60 * 60 * 1000))
                 .signWith((SecretKey) getSigningKey(), Jwts.SIG.HS256)
                 .compact();
     }
@@ -56,7 +57,6 @@ public class JwtService {
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
-
 
     private Date extractExpiration(String token) {
         return extractClaim(token, Claims::getExpiration);
@@ -72,5 +72,4 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
 }

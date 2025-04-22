@@ -1,12 +1,22 @@
 package aitu.network.aitunetwork.controller;
 
 
+import aitu.network.aitunetwork.common.annotations.CurrentUser;
+import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.dto.UserUpdateDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -28,24 +38,24 @@ public class UserController {
     }
 
     @PatchMapping
-    User updateUser(@RequestBody UserUpdateDTO userDTO) {
-        return userService.updateUser(userDTO);
+    User updateUser(@RequestBody UserUpdateDTO userDTO, @CurrentUser CustomUserDetails user) {
+        return userService.updateUser(userDTO, user.user());
     }
 
     @PatchMapping("/profile/photo")
-    void setProfilePhoto(@RequestParam MultipartFile file) {
-        userService.setProfilePhoto(file);
+    void setProfilePhoto(@RequestParam MultipartFile file, @CurrentUser CustomUserDetails user) {
+        userService.setProfilePhoto(file, user.user());
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/profile/photo")
-    void deleteProfilePhoto() {
-        userService.deleteProfilePhoto();
+    void deleteProfilePhoto(@CurrentUser CustomUserDetails user) {
+        userService.deleteProfilePhoto(user.user());
     }
 
     @DeleteMapping("/friend/{userId}")
-    void deleteFriend(@PathVariable String userId) {
-        userService.deleteFriendById(userId);
+    void deleteFriend(@PathVariable String userId, @CurrentUser CustomUserDetails user) {
+        userService.deleteFriendById(userId, user.user());
     }
 
 }

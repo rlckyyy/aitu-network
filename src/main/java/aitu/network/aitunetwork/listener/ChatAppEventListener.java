@@ -1,6 +1,7 @@
 package aitu.network.aitunetwork.listener;
 
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
+import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.service.ChatUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,16 +21,16 @@ public class ChatAppEventListener {
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
         UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) event.getUser();
-        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
-            chatUserService.connectChatUser(userDetails.getUser());
+        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails(User user)) {
+            chatUserService.connectChatUser(user);
         }
     }
 
     @EventListener
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         UsernamePasswordAuthenticationToken authentication = (UsernamePasswordAuthenticationToken) event.getUser();
-        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
-            chatUserService.disconnectChatUser(userDetails.getUser());
+        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails(User user)) {
+            chatUserService.disconnectChatUser(user);
         }
     }
 }

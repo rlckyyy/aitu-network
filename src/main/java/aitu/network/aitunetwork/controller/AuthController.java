@@ -45,7 +45,7 @@ public class AuthController {
 
     @GetMapping("/me")
     UserDTO me(@CurrentUser UserDetails userDetails) {
-        User user = ((CustomUserDetails) userDetails).getUser();
+        User user = ((CustomUserDetails) userDetails).user();
         return UserMapper.toDto(user);
     }
 }

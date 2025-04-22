@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.AbstractCollection;
 import java.util.Collection;
@@ -55,11 +56,8 @@ public class ChatService {
                 });
     }
 
-    public Map<String, Long> countNewMessages(
-            String chatId
-    ) {
-        long count = chatMessageService.countNewMessages(chatId);
-        return Map.of("count", count);
+    public Map<String, Object> countNewMessages(String chatId) {
+        return Map.of("count", chatMessageService.countNewMessages(chatId));
     }
 
     public List<ChatMessage> findChatMessages(String chatId) {
@@ -115,5 +113,9 @@ public class ChatService {
 
     public void deleteUserFromChatRoom(String chatRoomId, String participantId) {
         chatRoomService.actionParticipantToChatRoom(chatRoomId, participantId, ChatRoom::removeParticipant);
+    }
+
+    public ChatMessage saveAudioMessage(ChatMessage chatMessage, MultipartFile audioFile) {
+        return chatMessageService.saveAudioMessage(chatMessage, audioFile);
     }
 }

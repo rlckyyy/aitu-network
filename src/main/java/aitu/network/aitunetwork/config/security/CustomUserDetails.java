@@ -1,7 +1,6 @@
 package aitu.network.aitunetwork.config.security;
 
 import aitu.network.aitunetwork.model.entity.User;
-import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,13 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-@Getter
-public class CustomUserDetails implements UserDetails {
-    private User user;
-
-    public CustomUserDetails(User user) {
-        this.user = user;
-    }
+public record CustomUserDetails(User user) implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
