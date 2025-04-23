@@ -16,8 +16,8 @@ import java.io.IOException;
 @Slf4j
 public class FileService {
     private final GridFsService gridFsService;
-    @Value("${secure-talk.domain}")
-    private String DOMAIN;
+    @Value("${secure-talk.file-download-path}")
+    private String path;
 
     public String uploadFile(MultipartFile file) {
         try {
@@ -32,14 +32,10 @@ public class FileService {
     }
 
     public String getLinkForResource(String hexId) {
-        return DOMAIN + "/v1/file/" + hexId;
+        return path + hexId;
     }
 
     public GridFsResource getFile(String id) {
-        try {
-            return gridFsService.downloadFile(id);
-        } catch (IOException e) {
-            throw new ConflictException(e.getLocalizedMessage());
-        }
+        return gridFsService.downloadFile(id);
     }
 }

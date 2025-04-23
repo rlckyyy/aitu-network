@@ -1,6 +1,5 @@
 package aitu.network.aitunetwork.service;
 
-import aitu.network.aitunetwork.exception.NotFoundException;
 import aitu.network.aitunetwork.model.dto.UserShortDTO;
 import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
 import aitu.network.aitunetwork.model.dto.chat.NewChatRoomDTO;
@@ -21,7 +20,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,17 +41,10 @@ public class ChatService {
         if (chatRoom.getEmpty()) {
             chatRoom = chatRoomService.markChatRoom(chatRoom, false);
         }
-        List<User> participants = chatRoom.getParticipants().stream()
-                .filter(participant -> !participant.getId().equals(chatMessage.getSenderId()))
-                .toList();
-        System.out.println(participants);
 
-        chatRoom.getParticipants().stream()
-                .filter(participant -> !participant.getId().equals(chatMessage.getSenderId()))
-                .forEach(participant -> {
-                    log.info("Sending message to {}", participant.getUsername());
-                    messagingTemplate.convertAndSendToUser(participant.getId(), "/queue/messages", chatMessage);
-                });
+        chatRoom.getParticipants().forEach(participant ->
+                messagingTemplate.convertAndSendToUser(participant.getId(), "/queue/messages", chatMessage)
+        );
     }
 
     public Map<String, Object> countNewMessages(String chatId) {
@@ -76,15 +67,6 @@ public class ChatService {
         return chatRoomService.createChatRoom(chatRoom, user);
     }
 
-    public <T> Collection<T> getRelatedUsers(String userId, Function<UserShortDTO, T> userFunction) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
-
-        return getRelatedUsers(user).stream()
-                .map(userFunction)
-                .toList();
-    }
-
     public Collection<UserShortDTO> getRelatedUsers(User user) {
         Map<String, UserShortDTO> contactedUsersMap = chatRoomService.getUserChatRooms(user).stream()
                 .map(ChatRoomDTO::participants)
@@ -92,16 +74,14 @@ public class ChatService {
                 .filter(participant -> !participant.id().equals(user.getId()))
                 .collect(Collectors.toMap(UserShortDTO::id, Function.identity(), (e, r) -> e));
 
-        Collection<UserShortDTO> contactedUsers = contactedUsersMap.values();
-        Set<String> contactedUserIds = contactedUsersMap.keySet();
         List<String> nonContactedFriendsIds = user.getFriendList().stream()
-                .filter(userId -> !contactedUserIds.contains(userId))
+                .filter(userId -> !contactedUsersMap.containsKey(userId))
                 .toList();
 
         return userRepository.findAllById(nonContactedFriendsIds).stream()
                 .map(UserMapper::toShortDto)
                 .collect(
-                        () -> new LinkedHashSet<>(contactedUsers),
+                        () -> new LinkedHashSet<>(contactedUsersMap.values()),
                         HashSet::add,
                         AbstractCollection::addAll
                 );

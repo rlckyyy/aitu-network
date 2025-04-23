@@ -2,6 +2,7 @@ server:
   port: 8080
 secure-talk:
   domain: ${SECURE_TALK_DOMAIN:https://aitunet.kz/api}
+  file-download-path: ${secure-talk.domain}/v1/file/
 spring:
   data:
     mongodb:

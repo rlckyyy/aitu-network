@@ -5,7 +5,6 @@ import com.mongodb.client.gridfs.model.GridFSFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
@@ -30,7 +29,7 @@ public class GridFsService {
         return gridFsTemplate.findOne(new Query(Criteria.where("_id").is(id)));
     }
 
-    public GridFsResource downloadFile(String id) throws IOException {
+    public GridFsResource downloadFile(String id) {
         GridFSFile gridFSFile = getFile(id);
         if (gridFSFile == null) {
             throw new EntityNotFoundException(String.format("File with %s not found", id));

@@ -21,9 +21,8 @@ public class FileController {
     private final FileService fileService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String id) throws IOException {
+    ResponseEntity<Resource> downloadFile(@PathVariable String id) throws IOException {
         GridFsResource resource = fileService.getFile(id);
-
         String contentType = resource.getContentType();
         if (contentType.isBlank()) {
             contentType = "application/octet-stream";

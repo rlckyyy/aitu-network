@@ -17,8 +17,8 @@ public class CheckFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
-        log.warn("CHECK FILTER, URI: {}", request.getRequestURI());
-        log.warn("CHECK FILTER {}", request);
+        log.debug("CHECK FILTER, URI: {}", request.getRequestURI());
+        log.debug("CHECK FILTER {}", request);
         filterChain.doFilter(servletRequest, servletResponse);
     }
 }

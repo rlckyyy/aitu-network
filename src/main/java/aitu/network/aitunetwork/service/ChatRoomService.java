@@ -8,8 +8,9 @@ import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
 import aitu.network.aitunetwork.model.mapper.ChatMapper;
 import aitu.network.aitunetwork.repository.ChatRoomRepository;
 import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
-import com.mongodb.DuplicateKeyException;
+import com.mongodb.MongoWriteException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,17 +36,19 @@ public class ChatRoomService {
 
     public ChatRoomDTO createChatRoom(NewChatRoomDTO dto, User user) {
         try {
+            dto.participantsIds().add(user.getId());
             Set<User> participants = new HashSet<>(userRepository.findAllById(dto.participantsIds()));
-            if (!dto.participantsIds().contains(user.getId())) {
-                participants.add(user);
-            }
             ChatRoom chatRoom = chatRoomRepository.save(ChatMapper.mapToNewChatRoom(dto, new ArrayList<>(participants)));
             return ChatMapper.mapToChatRoomDTO(chatRoom, user);
         } catch (DuplicateKeyException e) {
-            String chatId = dto.chatRoomType().generateChatId(dto.participantsIds());
-            return chatRoomRepository.findByChatId(chatId)
-                    .map(chatRoom -> ChatMapper.mapToChatRoomDTO(chatRoom, user))
-                    .orElseThrow(() -> new NotFoundException("Chat room with chat id: " + chatId + "not found"));
+            if (isChatIdDuplicate(e)) {
+                String chatId = dto.chatRoomType().generateChatId(dto.participantsIds());
+                return chatRoomRepository.findByChatId(chatId)
+                        .map(chatRoom -> ChatMapper.mapToChatRoomDTO(chatRoom, user))
+                        .orElseThrow(() -> new NotFoundException("Chat room with chat id: " + chatId + " not found"));
+            } else {
+                throw e;
+            }
         }
     }
 
@@ -75,5 +78,9 @@ public class ChatRoomService {
     public ChatRoom fetch(String id) {
         return chatRoomRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Chat room with id: " + id + " not found"));
+    }
+
+    private boolean isChatIdDuplicate(DuplicateKeyException e) {
+        return e.getCause() instanceof MongoWriteException writeException && writeException.getError().getCode() == 11000;
     }
 }
