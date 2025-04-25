@@ -9,7 +9,6 @@ import aitu.network.aitunetwork.repository.FriendRequestRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -35,9 +34,6 @@ public class FriendshipService {
     }
 
     public FriendRequest sendFriendRequest(String id, User user) {
-        if (!StringUtils.hasText(id)) {
-            throw new ConflictException("user id is null");
-        }
         getSentRequests(PENDING, user).stream()
                 .filter(r -> Objects.equals(r.getReceiverId(), id))
                 .findAny()
@@ -65,9 +61,6 @@ public class FriendshipService {
     }
 
     public void deleteRequest(String requestId, User currentUser) {
-        if (requestId == null || requestId.isBlank()) {
-            throw new ConflictException("requestId is null");
-        }
         var friendRequest = friendRequestRepository.findById(requestId)
                 .orElseThrow(() -> new EntityNotFoundException(FriendRequest.class, requestId));
         if (!currentUser.getId().equals(friendRequest.getSenderId())) {

@@ -1,4 +1,4 @@
-package aitu.network.aitunetwork.exception;
+package aitu.network.aitunetwork.common.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

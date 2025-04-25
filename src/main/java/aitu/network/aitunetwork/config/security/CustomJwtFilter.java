@@ -24,7 +24,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 @Slf4j
 public class CustomJwtFilter extends OncePerRequestFilter {
-    private static final String JWT = "jwt";
+    public static final String JWT = "jwt";
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
 

@@ -1,6 +1,5 @@
 package aitu.network.aitunetwork.common.exception;
 
-import aitu.network.aitunetwork.exception.SecureTalkException;
 import org.springframework.http.HttpStatus;
 
 public class ConflictException extends SecureTalkException {

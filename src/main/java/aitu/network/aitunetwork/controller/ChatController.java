@@ -12,8 +12,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,13 +36,6 @@ import java.util.Map;
 public class ChatController {
 
     private final ChatService chatService;
-
-    @MessageMapping("/chat")
-    public void processMessage(
-            @Payload @Valid ChatMessage newChatMessage
-    ) {
-        chatService.processMessage(newChatMessage);
-    }
 
     @ResponseBody
     @GetMapping("/messages/{chatId}/count")
@@ -103,9 +94,9 @@ public class ChatController {
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/messages/files")
-    public ChatMessage saveAudioMessage(
+    public ChatMessage saveMessageFile(
             @Valid @RequestPart("chatMessage") ChatMessage chatMessage,
-            @RequestPart("audioFile") MultipartFile audioFile
+            @RequestPart("file") MultipartFile audioFile
     ) {
         return chatService.saveAudioMessage(chatMessage, audioFile);
     }

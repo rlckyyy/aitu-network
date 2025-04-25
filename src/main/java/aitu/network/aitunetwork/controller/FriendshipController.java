@@ -6,6 +6,7 @@ import aitu.network.aitunetwork.model.entity.FriendRequest;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.FriendRequestStatus;
 import aitu.network.aitunetwork.service.FriendshipService;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,8 +32,9 @@ public class FriendshipController {
             @RequestParam(required = false) FriendRequestStatus status, @CurrentUser CustomUserDetails user) {
         return friendshipService.getRequests(status, user.user());
     }
+
     @GetMapping("/{userId}")
-    List<User> getUserFriends(@PathVariable String userId){
+    List<User> getUserFriends(@PathVariable String userId) {
         return friendshipService.getUserFriendList(userId);
     }
 
@@ -45,13 +47,16 @@ public class FriendshipController {
     }
 
     @PostMapping("/request/{userId}")
-    FriendRequest sendFriendRequest(@PathVariable String userId, @CurrentUser CustomUserDetails user) {
+    FriendRequest sendFriendRequest(
+            @PathVariable @NotBlank(message = "errors.400.users.id") String userId,
+            @CurrentUser CustomUserDetails user
+    ) {
         return friendshipService.sendFriendRequest(userId, user.user());
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/request/{requestId}")
-    void deleteFriendRequest(@PathVariable String requestId, @CurrentUser CustomUserDetails user) {
+    void deleteFriendRequest(@PathVariable @NotBlank(message = "errors.400.requests.id") String requestId, @CurrentUser CustomUserDetails user) {
         friendshipService.deleteRequest(requestId, user.user());
     }
 

@@ -9,8 +9,9 @@ import jakarta.validation.constraints.Size;
 import java.util.Set;
 
 public record NewChatRoomDTO(
-        @Size(min = 1, message = "Number of participants must be at least 1") Set<@NotBlank(message = "Invalid participants ids") String> participantsIds,
-        @NotNull(message = "Chat room type can not be null") ChatRoomType chatRoomType,
+        @Size(min = 1, message = "errors.400.chats.participants")
+        Set<@NotBlank(message = "errors.400.chats.participants.id") String> participantsIds,
+        @NotNull(message = "errors.400.chats.rooms.type") ChatRoomType chatRoomType,
         @Nullable String title // title is null when chatRoomType is ONE_TO_ONE
 ) {
 }

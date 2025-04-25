@@ -1,6 +1,6 @@
 package aitu.network.aitunetwork.service;
 
-import aitu.network.aitunetwork.exception.NotFoundException;
+import aitu.network.aitunetwork.common.exception.NotFoundException;
 import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.entity.chat.ChatUser;
