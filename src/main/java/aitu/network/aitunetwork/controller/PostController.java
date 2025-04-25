@@ -1,5 +1,7 @@
 package aitu.network.aitunetwork.controller;
 
+import aitu.network.aitunetwork.common.annotations.CurrentUser;
+import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.dto.PostDTO;
 import aitu.network.aitunetwork.model.entity.Post;
 import aitu.network.aitunetwork.model.enums.PostType;
@@ -20,9 +22,10 @@ public class PostController {
     @PostMapping
     Post createPost(
             @RequestPart(required = false) PostDTO post,
-            @RequestPart(required = false) List<MultipartFile> files
-    ) {
-        return postService.createPost(post, files);
+            @RequestPart(required = false) List<MultipartFile> files,
+            @CurrentUser CustomUserDetails userDetails
+            ) {
+        return postService.createPost(post, files, userDetails);
     }
 
     @GetMapping("/{id}")

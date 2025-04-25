@@ -2,6 +2,7 @@ package aitu.network.aitunetwork.service;
 
 import aitu.network.aitunetwork.common.exception.ConflictException;
 import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
+import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.dto.PostDTO;
 import aitu.network.aitunetwork.model.entity.Post;
 import aitu.network.aitunetwork.model.enums.PostType;
@@ -24,19 +25,28 @@ public class PostService {
     private final PostRepository repository;
     private final FileService fileService;
     private final MongoTemplate mongoTemplate;
+    private final GroupService groupService;
 
-    public Post createPost(PostDTO postDTO, List<MultipartFile> files) {
-        Post post = Post.builder()
+    public Post createPost(PostDTO postDTO, List<MultipartFile> files, CustomUserDetails userDetails) {
+        Post.PostBuilder postBuilder = Post.builder()
                 .ownerId(postDTO.ownerId())
                 .groupId(postDTO.groupId())
                 .postType(postDTO.postType())
-                .description(postDTO.description())
-                .build();
-        if (files != null) {
-            List<String> idList = files.stream().map(fileService::uploadFile).map(fileService::getLinkForResource).toList();
-            post.setMediaFileIds(idList);
+                .description(postDTO.description());
+
+        switch (postDTO.postType()) {
+            case USER -> enrichUserPost(postBuilder, userDetails);
+            case GROUP -> enrichGroupPost(postBuilder, postDTO.groupId());
         }
-        return repository.save(post);
+
+        if (files != null && !files.isEmpty()) {
+            List<String> mediaLinks = files.stream()
+                    .map(fileService::uploadFile)
+                    .map(fileService::getLinkForResource)
+                    .toList();
+            postBuilder.mediaFileIds(mediaLinks);
+        }
+        return repository.save(postBuilder.build());
     }
 
     public Post findById(String id) {
@@ -85,5 +95,15 @@ public class PostService {
         post.setMediaFileIds(list);
         fileIds.forEach(fileService::deleteFile);
         return repository.save(post);
+    }
+
+    private void enrichUserPost(Post.PostBuilder builder, CustomUserDetails userDetails) {
+        builder.resource(userDetails.getUsername());
+        builder.avatarUrl(userDetails.user().getAvatar().getLocation());
+    }
+
+    private void enrichGroupPost(Post.PostBuilder builder, String groupId) {
+        String groupName = groupService.findById(groupId).getName();
+        builder.resource(groupName);
     }
 }

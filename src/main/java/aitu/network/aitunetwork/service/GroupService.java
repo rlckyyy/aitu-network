@@ -18,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GroupService {
     private final GroupRepository repository;
-    private final PostService postService;
     private final MongoTemplate mongoTemplate;
 
 
