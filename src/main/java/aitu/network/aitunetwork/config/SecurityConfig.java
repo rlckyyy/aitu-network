@@ -40,7 +40,8 @@ public class SecurityConfig {
             "/ws/**",
             "/api/v1/chats/users/**",
             "/api/v1/users/public/**",
-            "/api/v1/file/**"
+            "/api/v1/file/**",
+            "/api/v1/post/public/**",
     };
 
     @Bean

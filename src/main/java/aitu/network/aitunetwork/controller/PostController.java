@@ -33,7 +33,7 @@ public class PostController {
         return postService.findById(id);
     }
 
-    @GetMapping
+    @GetMapping("/public")
     List<Post> searchPosts(@RequestParam(required = false) String ownerId,
                            @RequestParam(required = false) String groupId,
                            @RequestParam(required = false) PostType postType,

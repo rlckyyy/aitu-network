@@ -103,7 +103,8 @@ public class PostService {
     }
 
     private void enrichGroupPost(Post.PostBuilder builder, String groupId) {
-        String groupName = groupService.findById(groupId).getName();
-        builder.resource(groupName);
+        var group = groupService.findById(groupId);
+        builder.resource(group.getName());
+        builder.avatarUrl(group.getAvatar().getLocation());
     }
 }

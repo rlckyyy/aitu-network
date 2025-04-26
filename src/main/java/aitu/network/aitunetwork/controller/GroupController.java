@@ -8,6 +8,7 @@ import aitu.network.aitunetwork.service.GroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -32,8 +33,10 @@ public class GroupController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    Group createGroup(@RequestBody GroupCreateDTO dto, @CurrentUser CustomUserDetails details) {
-        return groupService.createGroup(dto, details);
+    Group createGroup(@RequestPart GroupCreateDTO dto,
+                      @RequestPart MultipartFile file,
+                      @CurrentUser CustomUserDetails details) {
+        return groupService.createGroup(dto, file ,details);
     }
 
     @PostMapping("/{groupId}/follow")

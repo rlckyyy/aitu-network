@@ -40,7 +40,7 @@ public class AuthService {
             try {
                 return secureTalkUserRepository.save(mapUserDTOToUser(request));
             } catch (DuplicateKeyException e) {
-                throw new ConflictException("User with email " + request.email() + " already exists");
+                throw new ConflictException("errors.409.users.email");
             }
         }, executor).exceptionally(e -> {
             throw new RuntimeException("Error while register of user: " + e.getMessage(), e);
