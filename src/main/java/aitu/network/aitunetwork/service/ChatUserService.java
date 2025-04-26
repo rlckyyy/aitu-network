@@ -1,7 +1,5 @@
 package aitu.network.aitunetwork.service;
 
-import aitu.network.aitunetwork.common.exception.NotFoundException;
-import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.entity.chat.ChatUser;
 import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
@@ -22,7 +20,6 @@ import java.util.List;
 public class ChatUserService {
 
     private final MongoTemplate mongoTemplate;
-    private final ChatRoomService chatRoomService;
     private final SecureTalkUserRepository secureTalkUserRepository;
 
     public void connectChatUser(User user) {
@@ -42,19 +39,10 @@ public class ChatUserService {
         mongoTemplate.updateFirst(query, update, ChatUser.class);
     }
 
-    public List<ChatRoomDTO> getUserChats(String userId) {
-        return chatRoomService.getUserChatRooms(fetchUser(userId));
-    }
-
     public List<User> searchUsers(String query, User currentUser) {
         List<User> users = secureTalkUserRepository.findAllByEmailContainsIgnoreCaseOrUsernameContainsIgnoreCase(query, query);
         return users.stream()
                 .filter(user -> !user.getEmail().equalsIgnoreCase(currentUser.getEmail()))
                 .toList();
-    }
-
-    User fetchUser(String userId) {
-        return secureTalkUserRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id (" + userId + ") not found"));
     }
 }

@@ -32,7 +32,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             SecureTalkException e,
             WebRequest request
     ) {
-        String message = messageSource.getMessage(e.getMessage(), EMPTY_ARGS, LocaleContextHolder.getLocale());
+        String message = getMessage(e.getMessage());
         var problemDetail = ProblemDetail.forStatusAndDetail(e.getHttpStatus(), message);
         problemDetail.setInstance(URI.create(getPath(request)));
         return problemDetail;

@@ -9,6 +9,7 @@ import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
 import aitu.network.aitunetwork.service.ChatService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,23 +39,23 @@ public class ChatController {
     private final ChatService chatService;
 
     @ResponseBody
-    @GetMapping("/messages/{chatId}/count")
+    @GetMapping("/rooms/{id}/messages/count")
     public ResponseEntity<Map<String, Object>> countNewMessages(
-            @PathVariable String chatId
+            @PathVariable String id
     ) {
-        return ResponseEntity.ok(chatService.countNewMessages(chatId));
+        return ResponseEntity.ok(chatService.countNewMessages(id));
     }
 
     @ResponseBody
-    @GetMapping("/messages/{chatId}")
+    @GetMapping("/rooms/{chatId}/messages")
     public List<ChatMessage> findChatMessages(@PathVariable String chatId) {
         return chatService.findChatMessages(chatId);
     }
 
     @ResponseBody
-    @GetMapping("/rooms/{id}")
-    public List<ChatRoomDTO> getUserChatRooms(@PathVariable String id) {
-        return chatService.getUserChatRooms(id);
+    @GetMapping("/rooms/{userId}")
+    public List<ChatRoomDTO> getUserChatRooms(@NotBlank @PathVariable String userId, @CurrentUser CustomUserDetails userDetails) {
+        return chatService.getUserChatRooms(userId, userDetails.user());
     }
 
     @ResponseBody
@@ -79,16 +80,16 @@ public class ChatController {
 
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PatchMapping("/rooms/{chatRoomId}/{participantId}")
-    public void addUserToChatRoom(@PathVariable String chatRoomId, @PathVariable String participantId) {
-        chatService.addParticipantToChatRoom(chatRoomId, participantId);
+    @PatchMapping("/rooms/{id}/{participantId}")
+    public void addUserToChatRoom(@PathVariable String id, @PathVariable String participantId) {
+        chatService.addParticipantToChatRoom(id, participantId);
     }
 
     @ResponseBody
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("/rooms/{chatRoomId}/{participantId}")
-    public void deleteUserFromChatRoom(@PathVariable String chatRoomId, @PathVariable String participantId) {
-        chatService.deleteUserFromChatRoom(chatRoomId, participantId);
+    @DeleteMapping("/rooms/{id}/{participantId}")
+    public void deleteUserFromChatRoom(@PathVariable String id, @PathVariable String participantId) {
+        chatService.deleteUserFromChatRoom(id, participantId);
     }
 
     @ResponseBody

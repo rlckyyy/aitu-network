@@ -1,5 +1,6 @@
 package aitu.network.aitunetwork.service;
 
+import aitu.network.aitunetwork.common.exception.NotFoundException;
 import aitu.network.aitunetwork.model.dto.UserShortDTO;
 import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
 import aitu.network.aitunetwork.model.dto.chat.NewChatRoomDTO;
@@ -55,8 +56,9 @@ public class ChatService {
         return chatMessageService.findChatMessages(chatId);
     }
 
-    public List<ChatRoomDTO> getUserChatRooms(String id) {
-        return chatUserService.getUserChats(id);
+    public List<ChatRoomDTO> getUserChatRooms(String userId, User currentUser) {
+        User user = userId.equals(currentUser.getId()) ? currentUser : fetchUser(userId);
+        return chatRoomService.getUserChatRooms(user);
     }
 
     public List<User> searchUsers(String query, User user) {
@@ -97,5 +99,10 @@ public class ChatService {
 
     public ChatMessage saveAudioMessage(ChatMessage chatMessage, MultipartFile audioFile) {
         return chatMessageService.saveAudioMessage(chatMessage, audioFile);
+    }
+
+    User fetchUser(String userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User with id (" + userId + ") not found"));
     }
 }
