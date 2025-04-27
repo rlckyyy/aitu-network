@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,15 +22,21 @@ public class FileController {
     private final FileService fileService;
 
     @GetMapping("/{id}")
-    ResponseEntity<Resource> downloadFile(@PathVariable String id) throws IOException {
-        GridFsResource resource = fileService.getFile(id);
-        String contentType = resource.getContentType();
-        if (contentType.isBlank()) {
-            contentType = "application/octet-stream";
-        }
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(contentType))
-                .contentLength(resource.contentLength())
-                .body(new InputStreamResource(resource.getInputStream()));
+    CompletableFuture<ResponseEntity<Resource>> downloadFile(@PathVariable String id) {
+        return CompletableFuture.supplyAsync(() -> {
+            GridFsResource resource = fileService.getFile(id);
+            String contentType = resource.getContentType();
+            if (contentType.isBlank()) {
+                contentType = "application/octet-stream";
+            }
+            try {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .contentLength(resource.contentLength())
+                        .body(new InputStreamResource(resource.getInputStream()));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 }

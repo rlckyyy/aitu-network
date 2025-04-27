@@ -36,7 +36,7 @@ public class PostService {
 
         switch (postDTO.postType()) {
             case USER -> enrichUserPost(postBuilder, userDetails);
-            case GROUP -> enrichGroupPost(postBuilder, postDTO.groupId());
+            case GROUP -> enrichGroupPost(postBuilder, postDTO.groupId(), userDetails);
         }
 
         if (files != null && !files.isEmpty()) {
@@ -102,8 +102,14 @@ public class PostService {
         builder.avatarUrl(userDetails.user().getAvatar().getLocation());
     }
 
-    private void enrichGroupPost(Post.PostBuilder builder, String groupId) {
+    private void enrichGroupPost(Post.PostBuilder builder, String groupId, CustomUserDetails userDetails) {
         var group = groupService.findById(groupId);
+        group.getAdminIds().stream()
+                .filter(id -> id.equals(userDetails.user().getId()))
+                .findAny().orElseThrow(() -> new ConflictException());
+        if (){
+
+        }
         builder.resource(group.getName());
         builder.avatarUrl(group.getAvatar().getLocation());
     }

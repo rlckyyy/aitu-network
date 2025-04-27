@@ -32,6 +32,7 @@ public class GroupService {
         var group = Group.builder()
                 .name(dto.name())
                 .ownerId(details.user().getId())
+                .adminIds(List.of(details.user().getId()))
                 .userIds(List.of(details.user().getId()))
                 .description(dto.description())
                 .avatar(Avatar.builder()
