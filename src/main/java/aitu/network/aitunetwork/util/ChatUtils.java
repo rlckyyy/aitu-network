@@ -1,4 +1,4 @@
-package aitu.network.aitunetwork.service.util;
+package aitu.network.aitunetwork.util;
 
 import java.util.Collection;
 import java.util.stream.Collectors;

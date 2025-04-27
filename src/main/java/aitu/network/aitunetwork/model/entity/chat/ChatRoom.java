@@ -1,5 +1,6 @@
 package aitu.network.aitunetwork.model.entity.chat;
 
+import aitu.network.aitunetwork.model.entity.BaseEntity;
 import aitu.network.aitunetwork.model.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,9 +18,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@EqualsAndHashCode(of = "id")
+@EqualsAndHashCode(of = "id", callSuper = false)
 @Document
-public class ChatRoom {
+public class ChatRoom extends BaseEntity {
     @Id
     private String id;
     @Indexed(unique = true)

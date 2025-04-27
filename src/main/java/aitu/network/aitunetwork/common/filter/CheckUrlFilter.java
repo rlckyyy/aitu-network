@@ -1,4 +1,4 @@
-package aitu.network.aitunetwork.controller;
+package aitu.network.aitunetwork.common.filter;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;

@@ -21,7 +21,6 @@ import java.io.Serializable;
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Document(collection = "chatMessage")
 public class ChatMessage extends BaseEntity implements Serializable {
-
     @Id
     private String id;
     @NotBlank(message = "errors.400.chats.id")

@@ -1,6 +1,7 @@
 package aitu.network.aitunetwork.model.entity.chat;
 
 
+import aitu.network.aitunetwork.model.entity.BaseEntity;
 import aitu.network.aitunetwork.model.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,7 +20,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldNameConstants
-public class ChatUser {
+public class ChatUser extends BaseEntity {
     @Id
     @DBRef(lazy = true)
     private User user;

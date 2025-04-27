@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Setter
 @Builder
-public class FriendRequest {
+public class FriendRequest extends BaseEntity {
     private String id;
     private String senderId;
     private String sender;

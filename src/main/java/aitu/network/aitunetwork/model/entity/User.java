@@ -16,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @Document(collection = "user")
-public class User implements Serializable {
+public class User extends BaseEntity implements Serializable {
     @Id
     private String id;
     private String username;

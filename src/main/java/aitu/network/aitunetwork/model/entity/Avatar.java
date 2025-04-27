@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @Getter
 @Setter
-public class Avatar {
+public class Avatar extends BaseEntity{
     private String id;
     private String location;
 }

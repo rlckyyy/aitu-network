@@ -2,7 +2,7 @@ package aitu.network.aitunetwork.model.entity.chat;
 
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.contract.ChatRoomResolver;
-import aitu.network.aitunetwork.service.util.ChatUtils;
+import aitu.network.aitunetwork.util.ChatUtils;
 
 import java.util.Collection;
 import java.util.UUID;
