@@ -106,10 +106,7 @@ public class PostService {
         var group = groupService.findById(groupId);
         group.getAdminIds().stream()
                 .filter(id -> id.equals(userDetails.user().getId()))
-                .findAny().orElseThrow(() -> new ConflictException());
-        if (){
-
-        }
+                .findAny().orElseThrow(() -> new ConflictException("errors.409.resource.owner"));
         builder.resource(group.getName());
         builder.avatarUrl(group.getAvatar().getLocation());
     }
