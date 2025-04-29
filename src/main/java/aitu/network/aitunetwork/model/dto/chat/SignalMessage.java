@@ -7,6 +7,6 @@ public class SignalMessage {
     private String type;
     private String senderId;
     private String companionId;
-    private Object sdp;
+    private Sdp sdp;
     private Object candidate;
 }
