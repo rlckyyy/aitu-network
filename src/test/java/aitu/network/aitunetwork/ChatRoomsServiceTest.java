@@ -7,6 +7,7 @@ import aitu.network.aitunetwork.model.entity.chat.ChatRoomType;
 import aitu.network.aitunetwork.repository.ChatRoomRepository;
 import aitu.network.aitunetwork.repository.UserRepository;
 import aitu.network.aitunetwork.service.ChatRoomService;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -76,5 +77,10 @@ public class ChatRoomsServiceTest {
         assertThat("Title of chat room fetching by user1 must be username of user2", chatRoom.title(), equalTo(user2.getUsername()));
         assertThat("Title of chat room fetching by user2 must be username of user1", newerChatRoom.title(), equalTo(user1.getUsername()));
         assertThat("Just created chat room should be empty", chatRoom.empty() && newerChatRoom.empty());
+    }
+
+    @AfterAll
+    void clearUp() {
+        userRepository.deleteAll();
     }
 }
