@@ -6,7 +6,7 @@ import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
 import aitu.network.aitunetwork.model.dto.UserUpdateDTO;
 import aitu.network.aitunetwork.model.entity.Avatar;
 import aitu.network.aitunetwork.model.entity.User;
-import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
+import aitu.network.aitunetwork.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final SecureTalkUserRepository secureTalkUserRepository;
+    private final UserRepository userRepository;
     private final FileService fileService;
 
     public void setProfilePhoto(MultipartFile file, User user) {
@@ -25,27 +25,27 @@ public class UserService {
                 .id(hexId)
                 .location(fileService.getLinkForResource(hexId))
                 .build());
-        secureTalkUserRepository.save(user);
+        userRepository.save(user);
     }
 
     public List<User> getUserFriends(String userId) {
         User user = getById(userId);
-        return secureTalkUserRepository.findAllById(user.getFriendList());
+        return userRepository.findAllById(user.getFriendList());
     }
 
     public List<User> getAll() {
-        return secureTalkUserRepository.findAll();
+        return userRepository.findAll();
     }
 
     public User getById(String idOrEmail) {
-        return secureTalkUserRepository.findByIdOrEmail(idOrEmail)
+        return userRepository.findByIdOrEmail(idOrEmail)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, idOrEmail));
     }
 
     public User updateUser(UserUpdateDTO userDTO, User user) {
         user.setUsername(userDTO.username());
         user.setDescription(userDTO.description());
-        return secureTalkUserRepository.save(user);
+        return userRepository.save(user);
     }
 
     public void deleteFriendById(String userId, User user) {
@@ -59,16 +59,16 @@ public class UserService {
         if (!removed) {
             throw new ConflictException("User doesnt have user with such id");
         }
-        secureTalkUserRepository.save(user);
+        userRepository.save(user);
     }
 
     public List<User> save(Iterable<User> users) {
-        return secureTalkUserRepository.saveAll(users);
+        return userRepository.saveAll(users);
     }
 
     public void deleteProfilePhoto(User user) {
         fileService.deleteFile(user.getAvatar().getId());
         user.setAvatar(null);
-        secureTalkUserRepository.save(user);
+        userRepository.save(user);
     }
 }

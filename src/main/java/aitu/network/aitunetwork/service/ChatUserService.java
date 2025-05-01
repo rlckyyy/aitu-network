@@ -2,7 +2,7 @@ package aitu.network.aitunetwork.service;
 
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.entity.chat.ChatUser;
-import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
+import aitu.network.aitunetwork.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -20,7 +20,7 @@ import java.util.List;
 public class ChatUserService {
 
     private final MongoTemplate mongoTemplate;
-    private final SecureTalkUserRepository secureTalkUserRepository;
+    private final UserRepository userRepository;
 
     public void connectChatUser(User user) {
         updateUserStatus(user, true, ChatUser.Fields.connectedOn);
@@ -40,7 +40,7 @@ public class ChatUserService {
     }
 
     public List<User> searchUsers(String query, User currentUser) {
-        List<User> users = secureTalkUserRepository.findAllByEmailContainsIgnoreCaseOrUsernameContainsIgnoreCase(query, query);
+        List<User> users = userRepository.findAllByEmailContainsIgnoreCaseOrUsernameContainsIgnoreCase(query, query);
         return users.stream()
                 .filter(user -> !user.getEmail().equalsIgnoreCase(currentUser.getEmail()))
                 .toList();

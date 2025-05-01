@@ -7,7 +7,7 @@ import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
 import aitu.network.aitunetwork.model.mapper.ChatMapper;
 import aitu.network.aitunetwork.repository.ChatRoomRepository;
-import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
+import aitu.network.aitunetwork.repository.UserRepository;
 import com.mongodb.MongoWriteException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class ChatRoomService {
 
     private final ChatRoomRepository chatRoomRepository;
-    private final SecureTalkUserRepository userRepository;
+    private final UserRepository userRepository;
 
     public List<ChatRoomDTO> getUserChatRooms(User user) {
         return chatRoomRepository.findAllByParticipantsContains(user).stream()

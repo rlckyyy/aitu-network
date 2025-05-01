@@ -11,6 +11,9 @@ spring:
       uri: mongodb://aituuser:aitupass@mongo-db:27017/aitunetwork?authSource=admin
   profiles:
     active: local
+  mvc:
+    problemdetails:
+      enabled: true
 logging:
   level:
     org.springframework.security: info

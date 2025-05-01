@@ -8,7 +8,7 @@ import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
 import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
 import aitu.network.aitunetwork.model.mapper.UserMapper;
-import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
+import aitu.network.aitunetwork.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -32,7 +32,7 @@ public class ChatService {
     private final ChatMessageService chatMessageService;
     private final ChatRoomService chatRoomService;
     private final ChatUserService chatUserService;
-    private final SecureTalkUserRepository userRepository;
+    private final UserRepository userRepository;
 
     public void processMessage(
             ChatMessage newChatMessage

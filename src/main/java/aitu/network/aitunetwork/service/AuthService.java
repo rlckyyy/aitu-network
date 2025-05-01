@@ -9,7 +9,7 @@ import aitu.network.aitunetwork.model.dto.LoginRequest;
 import aitu.network.aitunetwork.model.dto.RegisterRequest;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.Role;
-import aitu.network.aitunetwork.repository.SecureTalkUserRepository;
+import aitu.network.aitunetwork.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,7 +28,7 @@ import java.util.concurrent.Executor;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final SecureTalkUserRepository secureTalkUserRepository;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
@@ -38,7 +38,7 @@ public class AuthService {
     public CompletableFuture<User> registerUser(RegisterRequest request) {
         return CompletableFuture.supplyAsync(() -> {
             try {
-                return secureTalkUserRepository.save(mapUserDTOToUser(request));
+                return userRepository.save(mapUserDTOToUser(request));
             } catch (DuplicateKeyException e) {
                 throw new ConflictException("errors.409.users.email");
             }

@@ -6,6 +6,7 @@ import aitu.network.aitunetwork.model.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
@@ -20,6 +21,7 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldNameConstants
+@EqualsAndHashCode(of = "user", callSuper = false) // апасно апасно
 public class ChatUser extends BaseEntity {
     @Id
     @DBRef(lazy = true)
