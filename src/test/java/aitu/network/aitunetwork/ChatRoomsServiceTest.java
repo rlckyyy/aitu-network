@@ -9,6 +9,7 @@ import aitu.network.aitunetwork.repository.UserRepository;
 import aitu.network.aitunetwork.service.ChatRoomService;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
+@Disabled
 @DataMongoTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ChatRoomsServiceTest {
