@@ -5,6 +5,7 @@ import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.dto.PostDTO;
 import aitu.network.aitunetwork.model.entity.Post;
+import aitu.network.aitunetwork.model.entity.Reaction;
 import aitu.network.aitunetwork.model.enums.PostType;
 import aitu.network.aitunetwork.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,9 +13,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -32,6 +35,7 @@ public class PostService {
                 .ownerId(postDTO.ownerId())
                 .groupId(postDTO.groupId())
                 .postType(postDTO.postType())
+                .reactions(new HashSet<>())
                 .description(postDTO.description());
 
         switch (postDTO.postType()) {
@@ -109,5 +113,11 @@ public class PostService {
                 .findAny().orElseThrow(() -> new ConflictException("errors.409.resource.owner"));
         builder.resource(group.getName());
         builder.avatarUrl(group.getAvatar().getLocation());
+    }
+
+    public void reactToPost(Reaction reaction, String postId) {
+        mongoTemplate.findAndModify(Query.query(Criteria.where(
+                "_id"
+        ).is(postId)), new Update().addToSet("reactions", reaction), Post.class);
     }
 }

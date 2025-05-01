@@ -4,8 +4,11 @@ import aitu.network.aitunetwork.common.annotations.CurrentUser;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.dto.PostDTO;
 import aitu.network.aitunetwork.model.entity.Post;
+import aitu.network.aitunetwork.model.entity.Reaction;
 import aitu.network.aitunetwork.model.enums.PostType;
+import aitu.network.aitunetwork.model.enums.ReactionType;
 import aitu.network.aitunetwork.service.PostService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,7 +27,7 @@ public class PostController {
             @RequestPart(required = false) PostDTO post,
             @RequestPart(required = false) List<MultipartFile> files,
             @CurrentUser CustomUserDetails userDetails
-            ) {
+    ) {
         return postService.createPost(post, files, userDetails);
     }
 
@@ -51,4 +54,10 @@ public class PostController {
     Post deleteFiles(@PathVariable String postId, @RequestParam List<String> fileIds) {
         return postService.deleteFiles(postId, fileIds);
     }
+
+    @PatchMapping("/{postId}/reactions")
+    void updatePostReaction(@RequestBody Reaction reaction, @PathVariable String postId) {
+        postService.reactToPost(reaction, postId);
+    }
+
 }
