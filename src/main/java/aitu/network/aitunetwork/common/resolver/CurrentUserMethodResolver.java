@@ -4,7 +4,6 @@ package aitu.network.aitunetwork.common.resolver;
 import aitu.network.aitunetwork.common.annotations.CurrentUser;
 import aitu.network.aitunetwork.common.exception.UnauthorizedException;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,7 +14,6 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 @Service
-@RequiredArgsConstructor
 public class CurrentUserMethodResolver implements HandlerMethodArgumentResolver {
 
     @Override

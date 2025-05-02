@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
@@ -20,6 +21,7 @@ import java.util.List;
 @Builder
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Document
+@FieldNameConstants
 public class ChatRoom extends BaseEntity {
     @Id
     private String id;

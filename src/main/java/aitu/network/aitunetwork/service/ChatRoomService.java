@@ -8,7 +8,9 @@ import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
 import aitu.network.aitunetwork.model.mapper.ChatMapper;
 import aitu.network.aitunetwork.repository.ChatRoomRepository;
 import aitu.network.aitunetwork.repository.UserRepository;
+import aitu.network.aitunetwork.util.IdUtils;
 import com.mongodb.MongoWriteException;
+import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -27,11 +29,18 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
 
-    public List<ChatRoomDTO> getUserChatRooms(User user) {
+    public List<ChatRoomDTO> findUserChatRooms(User user) {
         return chatRoomRepository.findAllByParticipantsContains(user).stream()
                 .filter(chatRoom -> chatRoom.getChatRoomType().isVisibleForParticipants(chatRoom))
                 .map((ChatRoom chatRoom) -> ChatMapper.mapToChatRoomDTO(chatRoom, user))
                 .collect(Collectors.toList());
+    }
+
+    public List<ChatRoomDTO> findUserChatRooms(@Nullable String userId, User currentUser) {
+        User user = !IdUtils.isValidId(userId)
+                ? currentUser
+                : currentUser.getId().equals(userId) ? currentUser : fetchUser(userId);
+        return findUserChatRooms(user);
     }
 
     public ChatRoomDTO createChatRoom(NewChatRoomDTO dto, User user) {
@@ -52,9 +61,8 @@ public class ChatRoomService {
         }
     }
 
-    public ChatRoom getChatRoom(String chatId) {
-        return chatRoomRepository.findByChatId(chatId)
-                .orElseThrow(() -> new NotFoundException("Chat room with chat id: " + chatId + " not found"));
+    public ChatRoom findChatRoom(String chatId) {
+        return fetchByChatId(chatId);
     }
 
     public ChatRoom markChatRoom(ChatRoom chatRoom, boolean empty) {
@@ -70,14 +78,19 @@ public class ChatRoomService {
         chatRoomRepository.save(chatRoom);
     }
 
-    public User fetchUser(String id) {
+    private User fetchUser(String id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User with id: " + id + " not found"));
     }
 
-    public ChatRoom fetch(String id) {
+    private ChatRoom fetch(String id) {
         return chatRoomRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Chat room with id: " + id + " not found"));
+    }
+
+    private ChatRoom fetchByChatId(String chatId) {
+        return chatRoomRepository.findByChatId(chatId)
+                .orElseThrow(() -> new NotFoundException("Chat room with chat id: " + chatId + " not found"));
     }
 
     private boolean isChatIdDuplicate(DuplicateKeyException e) {

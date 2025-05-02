@@ -1,8 +1,14 @@
 package aitu.network.aitunetwork.model.enums;
 
 public enum MessageType {
-    MESSAGE_TEXT,
-    MESSAGE_AUDIO,
-    JOIN,
-    LEAVE,
+    MESSAGE_TEXT(false),
+    MESSAGE_AUDIO(true),
+    JOIN(false),
+    LEAVE(false);
+
+    public final boolean isFileMessageType;
+
+    MessageType(boolean isFileMessageType) {
+        this.isFileMessageType = isFileMessageType;
+    }
 }

@@ -97,7 +97,7 @@ public class ChatRoomsServiceTest {
             chatRoomRepository.save(justCreatedChatRoom);
         }
 
-        List<ChatRoomDTO> user1ChatRooms = chatRoomService.getUserChatRooms(user1);
+        List<ChatRoomDTO> user1ChatRooms = chatRoomService.findUserChatRooms(user1);
 
         Optional<ChatRoomDTO> chatRoomOptional = user1ChatRooms.stream()
                 .filter(dto -> dto.id().equals(chatRoom.id()))
@@ -125,7 +125,7 @@ public class ChatRoomsServiceTest {
                 user1
         );
 
-        List<ChatRoomDTO> user2ChatRooms = chatRoomService.getUserChatRooms(user2);
+        List<ChatRoomDTO> user2ChatRooms = chatRoomService.findUserChatRooms(user2);
 
         assertThat(
                 "user2 should not see that another user created one to one chat room with him",
@@ -148,7 +148,7 @@ public class ChatRoomsServiceTest {
                 user1
         );
 
-        List<ChatRoomDTO> user1ChatRooms = chatRoomService.getUserChatRooms(user1);
+        List<ChatRoomDTO> user1ChatRooms = chatRoomService.findUserChatRooms(user1);
 
         assertThat(
                 "user2 should not see that another user created one to one chat room with him",
