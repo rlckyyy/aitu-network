@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -37,5 +38,12 @@ public class FileService {
 
     public GridFsResource getFile(String id) {
         return gridFsService.downloadFile(id);
+    }
+
+    public void deleteFilesByLink(List<String> mediaFileIds) {
+        //["https://aitunet.kz/api/v1/file/68172d4e1391893c7f5279ea"]
+        mediaFileIds.stream()
+                .map(link -> link.substring(link.lastIndexOf('/') + 1)).
+                forEach(this::deleteFile);
     }
 }

@@ -119,6 +119,11 @@ public class PostService {
         mongoTemplate.updateFirst(query, update, Post.class);
     }
 
+    public void deletePost(String id) {
+        Query query = new Query(Criteria.where("_id").is(id));
+        Post post = mongoTemplate.findAndRemove(query, Post.class);
+        fileService.deleteFilesByLink(Objects.requireNonNull(post).getMediaFileIds());
+    }
 
     private void enrichGroupPost(Post.PostBuilder builder, String groupId, CustomUserDetails userDetails) {
         var group = groupService.findById(groupId);
@@ -127,4 +132,5 @@ public class PostService {
                 .findAny().orElseThrow(() -> new ConflictException("errors.409.resource.owner"));
         builder.resource(group.getName());
     }
+
 }
