@@ -6,10 +6,9 @@ import aitu.network.aitunetwork.model.dto.PostDTO;
 import aitu.network.aitunetwork.model.entity.Post;
 import aitu.network.aitunetwork.model.entity.Reaction;
 import aitu.network.aitunetwork.model.enums.PostType;
-import aitu.network.aitunetwork.model.enums.ReactionType;
 import aitu.network.aitunetwork.service.PostService;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,7 +49,13 @@ public class PostController {
         return postService.updateDescription(map, id);
     }
 
-    @DeleteMapping("/{postId}")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void deletePost(@PathVariable String id) {
+        postService.deletePost(id);
+    }
+
+    @DeleteMapping("/{postId}/files")
     Post deleteFiles(@PathVariable String postId, @RequestParam List<String> fileIds) {
         return postService.deleteFiles(postId, fileIds);
     }
@@ -60,4 +65,8 @@ public class PostController {
         postService.reactToPost(reaction, postId);
     }
 
+    @DeleteMapping("/{postId}/reactions/{userId}")
+    void deletePostReaction(@PathVariable String postId, @PathVariable String userId) {
+        postService.deleteReaction(postId, userId);
+    }
 }

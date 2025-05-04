@@ -12,6 +12,7 @@ import aitu.network.aitunetwork.model.enums.Role;
 import aitu.network.aitunetwork.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.util.Pair;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

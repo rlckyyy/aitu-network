@@ -103,7 +103,26 @@ public class PostService {
 
     private void enrichUserPost(Post.PostBuilder builder, CustomUserDetails userDetails) {
         builder.resource(userDetails.getUsername());
-        builder.avatarUrl(userDetails.user().getAvatar().getLocation());
+    }
+
+
+    public void reactToPost(Reaction reaction, String postId) {
+        mongoTemplate.findAndModify(Query.query(Criteria.where(
+                "_id"
+        ).is(postId)), new Update().addToSet("reactions", reaction), Post.class);
+    }
+
+    public void deleteReaction(String postId, String userId) {
+        Query query = Query.query(Criteria.where("_id").is(postId));
+        Update update = new Update().pull("reactions",
+                Query.query(Criteria.where("userId").is(userId)));
+        mongoTemplate.updateFirst(query, update, Post.class);
+    }
+
+    public void deletePost(String id) {
+        Query query = new Query(Criteria.where("_id").is(id));
+        Post post = mongoTemplate.findAndRemove(query, Post.class);
+        fileService.deleteFilesByLink(Objects.requireNonNull(post).getMediaFileIds());
     }
 
     private void enrichGroupPost(Post.PostBuilder builder, String groupId, CustomUserDetails userDetails) {
@@ -112,12 +131,6 @@ public class PostService {
                 .filter(id -> id.equals(userDetails.user().getId()))
                 .findAny().orElseThrow(() -> new ConflictException("errors.409.resource.owner"));
         builder.resource(group.getName());
-        builder.avatarUrl(group.getAvatar().getLocation());
     }
 
-    public void reactToPost(Reaction reaction, String postId) {
-        mongoTemplate.findAndModify(Query.query(Criteria.where(
-                "_id"
-        ).is(postId)), new Update().addToSet("reactions", reaction), Post.class);
-    }
 }
