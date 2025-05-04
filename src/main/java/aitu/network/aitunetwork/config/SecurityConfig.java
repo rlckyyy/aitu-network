@@ -42,6 +42,7 @@ public class SecurityConfig {
             "/api/v1/users/public/**",
             "/api/v1/file/**",
             "/api/v1/post/public/**",
+            "/error"
     };
 
     @Bean
