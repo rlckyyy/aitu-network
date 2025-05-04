@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Setter
 @Builder
 @Document
-@CompoundIndex(name = "post_user_unique_idx", def = "{'postId: 1', 'userId': 1}", unique = true)
+@CompoundIndex(name = "post_user_unique_idx", def = "{'postId': 1, 'userId': 1}", unique = true)
 public class Reaction {
     @Id
     private String id;
