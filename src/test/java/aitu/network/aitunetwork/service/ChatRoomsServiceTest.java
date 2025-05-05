@@ -112,6 +112,31 @@ public class ChatRoomsServiceTest {
     }
 
     @Test
+    void createChatRoom_shouldReturnGroupChatRoom_whenChatRoomJustCreated() {
+        User user1 = getUserByEmail("user1@gmail.com");
+        User user2 = getUserByEmail("user2@gmail.com");
+
+        User user3 = User.builder()
+                .email("user3@gmail.com")
+                .username("user3")
+                .build();
+        userRepository.save(user3);
+
+        ChatRoomDTO chatRoom = chatRoomService.createChatRoom( // user1 is creator
+                new NewChatRoomDTO(new HashSet<>(Set.of(user2.getId(), user3.getId())), ChatRoomType.GROUP, "chat room title"),
+                user1
+        );
+
+        for (User user : List.of(user1, user2, user3)) {
+            assertThat(
+                    "Not all participants were added to group chat",
+                    chatRoomService.findUserChatRooms(user).stream()
+                            .anyMatch(dto -> dto.id().equals(chatRoom.id()))
+            );
+        }
+    }
+
+    @Test
     @DisplayName("""
             if user1 created one to one chat room with user2,
             user2 should not see chat room that was created by user1 until user1 writes something (chat room is NOT empty)

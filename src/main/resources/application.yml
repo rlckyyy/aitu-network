@@ -1,5 +1,7 @@
 server:
   port: 8080
+  error:
+    include-message: always
 secure-talk:
   domain: ${SECURE_TALK_DOMAIN:https://aitunet.kz/api}
   file-download-path: ${secure-talk.domain}/v1/file/
