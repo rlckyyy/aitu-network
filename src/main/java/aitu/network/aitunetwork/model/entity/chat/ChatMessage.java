@@ -28,6 +28,7 @@ public class ChatMessage extends BaseEntity implements Serializable {
     @NotBlank(message = "errors.400.chats.senders.id")
     private String senderId;
     private String content;
+    private short length;
     private MessageStatus status;
     private MessageType type;
 }

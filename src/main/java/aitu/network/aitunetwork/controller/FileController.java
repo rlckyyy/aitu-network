@@ -6,6 +6,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.mongodb.gridfs.GridFsResource;
 import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,13 +26,10 @@ public class FileController {
     CompletableFuture<ResponseEntity<Resource>> downloadFile(@PathVariable String id) {
         return CompletableFuture.supplyAsync(() -> {
             GridFsResource resource = fileService.getFile(id);
-            String contentType = resource.getContentType();
-            if (contentType.isBlank()) {
-                contentType = "application/octet-stream";
-            }
+            MediaType contentType = MediaTypeFactory.getMediaType(resource).orElse(MediaType.APPLICATION_OCTET_STREAM);
             try {
                 return ResponseEntity.ok()
-                        .contentType(MediaType.parseMediaType(contentType))
+                        .contentType(contentType)
                         .contentLength(resource.contentLength())
                         .body(new InputStreamResource(resource.getInputStream()));
             } catch (IOException e) {
