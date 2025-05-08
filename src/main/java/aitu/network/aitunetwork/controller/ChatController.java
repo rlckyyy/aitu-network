@@ -34,65 +34,66 @@ import java.util.Map;
 public class ChatController {
 
     private final ChatService chatService;
+    private final UserFetcher userFetcher;
 
     @GetMapping("/rooms/{id}/messages/count")
-    public ResponseEntity<Map<String, Object>> countNewMessages(
+    ResponseEntity<Map<String, Object>> countNewMessages(
             @PathVariable String id
     ) {
         return ResponseEntity.ok(chatService.countNewMessages(id));
     }
 
     @GetMapping("/rooms/{chatId}/messages")
-    public List<ChatMessage> findChatMessages(@PathVariable String chatId) {
+    List<ChatMessage> findChatMessages(@PathVariable String chatId) {
         return chatService.findChatMessages(chatId);
     }
 
-    @GetMapping("/{userId}")
-    public List<ChatRoomsWithMessages> findChatMessages(
-            @PathVariable String userId,
-            @CurrentUser CustomUserDetails userDetails
-    ) {
-        return chatService.findChats(userId, userDetails.user());
-    }
-
-    @GetMapping("/rooms/{userId}")
-    public List<ChatRoomDTO> findUserChatRooms(
+    @GetMapping({"/chats/{userId}", "/chats/"})
+    List<ChatRoomsWithMessages> findChatMessages(
             @PathVariable(required = false) String userId,
             @CurrentUser CustomUserDetails userDetails
     ) {
-        return chatService.findUserChatRooms(userId, userDetails.user());
+        return chatService.findChats(userDetails.resolveUserId(userId, userFetcher));
+    }
+
+    @GetMapping(value = {"/rooms/{userId}", "/rooms/"})
+    List<ChatRoomDTO> findUserChatRooms(
+            @PathVariable(required = false) String userId,
+            @CurrentUser CustomUserDetails userDetails
+    ) {
+        return chatService.findUserChatRooms(userDetails.resolveUserId(userId, userFetcher));
     }
 
     @GetMapping("/users/search")
-    public List<User> searchUsers(@RequestParam String query, @CurrentUser CustomUserDetails currentUser) {
+    List<User> searchUsers(@RequestParam String query, @CurrentUser CustomUserDetails currentUser) {
         return chatService.searchUsers(query, currentUser.user());
     }
 
     @PostMapping("/rooms")
     @ResponseStatus(HttpStatus.CREATED)
-    public ChatRoomDTO createChatRoom(@Valid @RequestBody NewChatRoomDTO chatRoom,
-                                      @CurrentUser CustomUserDetails userDetails) {
+    ChatRoomDTO createChatRoom(@Valid @RequestBody NewChatRoomDTO chatRoom,
+                               @CurrentUser CustomUserDetails userDetails) {
         return chatService.createChatRoom(chatRoom, userDetails.user());
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PatchMapping("/rooms/{id}/participants/{participantId}")
-    public void addUserToChatRoom(@PathVariable String id, @PathVariable String participantId) {
+    void addUserToChatRoom(@PathVariable String id, @PathVariable String participantId) {
         chatService.addParticipantToChatRoom(id, participantId);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/rooms/{id}/participants/{participantId}")
-    public void deleteUserFromChatRoom(@PathVariable String id, @PathVariable String participantId) {
+    void deleteUserFromChatRoom(@PathVariable String id, @PathVariable String participantId) {
         chatService.deleteUserFromChatRoom(id, participantId);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/messages/files")
-    public ChatMessage saveMessageFile(
+    ChatMessage saveMessageFile(
             @Valid @RequestPart("chatMessage") ChatMessage chatMessage,
-            @RequestPart("file") MultipartFile audioFile
+            @RequestPart("fileMessage") MultipartFile fileMessage
     ) {
-        return chatService.saveFileMessage(chatMessage, audioFile);
+        return chatService.saveFileMessage(chatMessage, fileMessage);
     }
 }

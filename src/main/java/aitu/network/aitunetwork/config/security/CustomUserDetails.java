@@ -4,8 +4,10 @@ import aitu.network.aitunetwork.model.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
 
 import java.util.Collection;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public record CustomUserDetails(User user) implements UserDetails {
@@ -27,4 +29,7 @@ public record CustomUserDetails(User user) implements UserDetails {
         return user.getEmail();
     }
 
+    public User resolveUserId(String userId, Function<String, User> defaultUserSupp) {
+        return StringUtils.hasText(userId) ? defaultUserSupp.apply(userId) : user;
+    }
 }

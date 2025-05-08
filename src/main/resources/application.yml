@@ -16,6 +16,10 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  servlet:
+    multipart:
+      max-file-size: 30MB
+      max-request-size: 30MB
 logging:
   level:
     org.springframework.security: info

@@ -6,7 +6,6 @@ import aitu.network.aitunetwork.model.dto.chat.NewChatRoomDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
 import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
-import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -49,8 +48,8 @@ public class ChatService {
         return chatMessageService.findChatMessages(chatId);
     }
 
-    public List<ChatRoomsWithMessages> findChats(@Nullable String userId, User user) {
-        Map<String, ChatRoomDTO> chatRooms = chatRoomService.findUserChatRooms(userId, user).stream()
+    public List<ChatRoomsWithMessages> findChats(User user) {
+        Map<String, ChatRoomDTO> chatRooms = chatRoomService.findUserChatRooms(user).stream()
                 .collect(Collectors.toMap(ChatRoomDTO::chatId, Function.identity()));
 
         Map<ChatRoomDTO, List<ChatMessage>> chatRoomsWithMessagesMap = chatMessageService.findChatMessages(chatRooms.keySet()).stream()
@@ -59,8 +58,8 @@ public class ChatService {
         return ChatRoomsWithMessages.fromMap(chatRoomsWithMessagesMap);
     }
 
-    public List<ChatRoomDTO> findUserChatRooms(@Nullable String userId, User currentUser) {
-        return chatRoomService.findUserChatRooms(userId, currentUser);
+    public List<ChatRoomDTO> findUserChatRooms(User user) {
+        return chatRoomService.findUserChatRooms(user);
     }
 
     public List<User> searchUsers(String query, User user) {
