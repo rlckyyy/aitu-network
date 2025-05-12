@@ -49,7 +49,7 @@ public class ChatController {
         return chatService.findChatMessages(chatId);
     }
 
-    @GetMapping({"/chats/{userId}", "/chats/"})
+    @GetMapping({"/{userId}", "/"})
     List<ChatRoomsWithMessages> findChatMessages(
             @PathVariable(required = false) String userId,
             @CurrentUser CustomUserDetails userDetails
