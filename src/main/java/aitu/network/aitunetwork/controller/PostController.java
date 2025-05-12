@@ -60,13 +60,18 @@ public class PostController {
         return postService.deleteFiles(postId, fileIds);
     }
 
-    @PatchMapping("/{postId}/reactions")
-    void updatePostReaction(@RequestBody Reaction reaction, @PathVariable String postId) {
-        postService.reactToPost(reaction, postId);
+    @PatchMapping("/reactions")
+    void updatePostReaction(@RequestBody Reaction reaction) {
+        postService.reactToPost(reaction);
     }
 
     @DeleteMapping("/{postId}/reactions/{userId}")
     void deletePostReaction(@PathVariable String postId, @PathVariable String userId) {
         postService.deleteReaction(postId, userId);
+    }
+
+    @GetMapping("/public/{postId}/reactions")
+    List<Reaction> getReactions(@PathVariable String postId) {
+        return postService.fetchReactions(postId);
     }
 }

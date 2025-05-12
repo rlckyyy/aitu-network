@@ -17,19 +17,20 @@ import java.util.List;
 public class CommentController {
     private final CommentService commentService;
 
-    @GetMapping
-    List<Comment> searchComments(@RequestBody CommentCriteria criteria) {
+    @GetMapping("/public")
+    List<Comment> searchComments(CommentCriteria criteria) {
         return commentService.getComments(criteria);
     }
 
     @PostMapping
     Comment addComment(@RequestPart Comment comment,
-                       @RequestPart(required = false) List<MultipartFile> multipartFiles) {
+                       @RequestPart(required = false, value = "files") List<MultipartFile> multipartFiles) {
         return commentService.addComment(comment, multipartFiles);
     }
 
     @PatchMapping("/{id}")
-    Comment editComment(@RequestBody StringWrapper content, @PathVariable("id") String commentId) {
+    Comment editComment(@RequestBody StringWrapper content,
+                        @PathVariable("id") String commentId) {
         return commentService.editContent(content, commentId);
     }
 
