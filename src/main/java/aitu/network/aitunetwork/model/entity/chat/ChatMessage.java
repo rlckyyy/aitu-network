@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.experimental.FieldNameConstants;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -20,6 +21,7 @@ import java.io.Serializable;
 @SuperBuilder
 @EqualsAndHashCode(of = "id", callSuper = false)
 @Document(collection = "chatMessage")
+@FieldNameConstants
 public class ChatMessage extends BaseEntity implements Serializable {
     @Id
     private String id;

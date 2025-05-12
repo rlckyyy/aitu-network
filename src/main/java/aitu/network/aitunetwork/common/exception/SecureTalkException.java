@@ -12,4 +12,8 @@ public abstract class SecureTalkException extends RuntimeException {
         super(message);
         this.httpStatus = httpStatus;
     }
+
+    public SecureTalkException(Class<?> aClass, Object id, HttpStatus httpStatus) {
+        this(aClass.getSimpleName() + " with id: " + id + " not found", httpStatus);
+    }
 }
