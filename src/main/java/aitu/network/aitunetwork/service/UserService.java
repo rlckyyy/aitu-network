@@ -3,17 +3,27 @@ package aitu.network.aitunetwork.service;
 
 import aitu.network.aitunetwork.common.exception.ConflictException;
 import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
+import aitu.network.aitunetwork.model.dto.StatusUpdate;
 import aitu.network.aitunetwork.model.dto.UserShortDTO;
 import aitu.network.aitunetwork.model.dto.UserUpdateDTO;
 import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
 import aitu.network.aitunetwork.model.entity.Avatar;
 import aitu.network.aitunetwork.model.entity.User;
+import aitu.network.aitunetwork.model.entity.UserStatusDetails;
+import aitu.network.aitunetwork.model.enums.ConnectionStatus;
 import aitu.network.aitunetwork.model.mapper.UserMapper;
 import aitu.network.aitunetwork.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
 import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.HashSet;
@@ -26,9 +36,15 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
+    private static final Function<User, String> destinationFunction
+            = (user) -> "/user/" + user.getId() + "/queue/status";
+
     private final UserRepository userRepository;
     private final FileService fileService;
     private final ChatRoomService chatRoomService;
+    private final MongoTemplate mongoTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public void setProfilePhoto(MultipartFile file, User user) {
         String hexId = fileService.uploadFile(file);
@@ -44,10 +60,6 @@ public class UserService {
         return userRepository.findAllById(user.getFriendList());
     }
 
-    public List<User> getAll() {
-        return userRepository.findAll();
-    }
-
     public User getById(String idOrEmail) {
         return userRepository.findByIdOrEmail(idOrEmail)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, idOrEmail));
@@ -60,10 +72,7 @@ public class UserService {
     }
 
     public void deleteFriendById(String userId, User user) {
-        if (userId == null || userId.isBlank()) {
-            throw new ConflictException("User id is empty or null");
-        }
-        if (user.getFriendList() == null || user.getFriendList().isEmpty()) {
+        if (CollectionUtils.isEmpty(user.getFriendList())) {
             throw new ConflictException("Friend List is empty");
         }
         boolean removed = user.getFriendList().removeIf(userId::equals);
@@ -78,17 +87,18 @@ public class UserService {
     }
 
     public void deleteProfilePhoto(User user) {
-        fileService.deleteFile(user.getAvatar().getId());
+        String pfpId = user.getAvatar().getId();
         user.setAvatar(null);
         userRepository.save(user);
+        fileService.deleteFile(pfpId);
     }
 
     public Collection<UserShortDTO> getRelatedUsers(User user) {
         Map<String, UserShortDTO> contactedUsersMap = chatRoomService.findUserChatRooms(user).stream()
                 .map(ChatRoomDTO::participants)
                 .flatMap(List::stream)
-                .filter(participant -> !participant.id().equals(user.getId()))
-                .collect(Collectors.toMap(UserShortDTO::id, Function.identity(), (e, r) -> e));
+                .filter(participant -> !participant.getId().equals(user.getId()))
+                .collect(Collectors.toMap(UserShortDTO::getId, Function.identity(), (e, r) -> e));
 
         List<String> nonContactedFriendsIds = user.getFriendList().stream()
                 .filter(userId -> !contactedUsersMap.containsKey(userId))
@@ -101,5 +111,31 @@ public class UserService {
                         HashSet::add,
                         AbstractCollection::addAll
                 );
+    }
+
+    public List<User> searchUsers(String query, User currentUser) {
+        List<User> users = userRepository.findAllByEmailContainsIgnoreCaseOrUsernameContainsIgnoreCase(query, query);
+        return users.stream()
+                .filter(user -> !user.getEmail().equalsIgnoreCase(currentUser.getEmail()))
+                .toList();
+    }
+
+    public void connectUser(User user) {
+        updateUserStatus(user, true, UserStatusDetails.Fields.connectedOn);
+        messagingTemplate.convertAndSend(destinationFunction.apply(user), new StatusUpdate(ConnectionStatus.ONLINE));
+    }
+
+    public void disconnectUser(User user) {
+        updateUserStatus(user, false, UserStatusDetails.Fields.leftOn);
+        messagingTemplate.convertAndSend(destinationFunction.apply(user), new StatusUpdate(ConnectionStatus.OFFLINE));
+    }
+
+    private void updateUserStatus(User user, boolean connected, String connectedOrLeftOn) {
+        Query query = new Query(Criteria.where("_id").is(user.getId()));
+        Update update = new Update()
+                .set(UserStatusDetails.Fields.connected, connected)
+                .set(connectedOrLeftOn, Instant.now());
+
+        mongoTemplate.updateFirst(query, update, User.class);
     }
 }
