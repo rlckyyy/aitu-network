@@ -13,6 +13,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,6 +24,9 @@ public class CommentService {
     private final MongoTemplate mongoTemplate;
 
     public Comment addComment(Comment comment, List<MultipartFile> multipartFiles) {
+        if (multipartFiles == null) {
+            multipartFiles = Collections.emptyList();
+        }
         var linkList = multipartFiles.stream().map(fileService::uploadFile).map(fileService::getLinkForResource).toList();
         comment.setMediaFileLinks(linkList);
         return mongoTemplate.insert(comment);

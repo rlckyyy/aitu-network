@@ -56,7 +56,7 @@ public class UserController {
     }
 
     @GetMapping("/related")
-    public Collection<UserShortDTO> getRelatedUsers(@CurrentUser CustomUserDetails user) {
+    Collection<UserShortDTO> getRelatedUsers(@CurrentUser CustomUserDetails user) {
         return userService.getRelatedUsers(user.user());
     }
 }

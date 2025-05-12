@@ -13,7 +13,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -106,23 +105,27 @@ public class PostService {
     }
 
 
-    public void reactToPost(Reaction reaction, String postId) {
-        mongoTemplate.findAndModify(Query.query(Criteria.where(
-                "_id"
-        ).is(postId)), new Update().addToSet("reactions", reaction), Post.class);
-    }
-
-    public void deleteReaction(String postId, String userId) {
-        Query query = Query.query(Criteria.where("_id").is(postId));
-        Update update = new Update().pull("reactions",
-                Query.query(Criteria.where("userId").is(userId)));
-        mongoTemplate.updateFirst(query, update, Post.class);
-    }
-
     public void deletePost(String id) {
         Query query = new Query(Criteria.where("_id").is(id));
         Post post = mongoTemplate.findAndRemove(query, Post.class);
         fileService.deleteFilesByLink(Objects.requireNonNull(post).getMediaFileIds());
+    }
+
+    public void reactToPost(Reaction reaction) {
+        mongoTemplate.insert(reaction);
+    }
+
+    public void deleteReaction(String postId, String userId) {
+        Criteria criteria = Criteria
+                .where("postId").is(postId)
+                .and("userId").is(userId);
+        Query query = new Query(criteria);
+        mongoTemplate.remove(query, Reaction.class);
+    }
+
+    public List<Reaction> fetchReactions(String postId) {
+        Query query = new Query(Criteria.where("postId").is(postId));
+        return mongoTemplate.find(query, Reaction.class);
     }
 
     private void enrichGroupPost(Post.PostBuilder builder, String groupId, CustomUserDetails userDetails) {

@@ -3,6 +3,7 @@ package aitu.network.aitunetwork;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+
 @SpringBootApplication
 public class AituNetworkApplication {
     public static void main(String[] args) {
