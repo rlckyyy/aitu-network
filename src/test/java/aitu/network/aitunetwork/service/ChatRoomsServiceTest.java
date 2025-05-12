@@ -1,5 +1,6 @@
 package aitu.network.aitunetwork.service;
 
+import aitu.network.aitunetwork.config.MongoTestContainer;
 import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
 import aitu.network.aitunetwork.model.dto.chat.NewChatRoomDTO;
 import aitu.network.aitunetwork.model.entity.User;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
@@ -25,8 +25,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-@DataMongoTest
-public class ChatRoomsServiceTest {
+public class ChatRoomsServiceTest extends MongoTestContainer {
     @Autowired
     private UserRepository userRepository;
     @Autowired
