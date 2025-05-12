@@ -2,7 +2,7 @@ package aitu.network.aitunetwork.listener;
 
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.entity.User;
-import aitu.network.aitunetwork.service.ChatUserService;
+import aitu.network.aitunetwork.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -15,14 +15,13 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 @Component
 @RequiredArgsConstructor
 public class ChatAppEventListener {
-
-    private final ChatUserService chatUserService;
+    private final UserService userService;
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectEvent event) {
         var authentication = (UsernamePasswordAuthenticationToken) event.getUser();
         if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails(User user)) {
-            chatUserService.connectChatUser(user);
+            userService.connectUser(user);
         }
     }
 
@@ -30,7 +29,7 @@ public class ChatAppEventListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         var authentication = (UsernamePasswordAuthenticationToken) event.getUser();
         if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails(User user)) {
-            chatUserService.disconnectChatUser(user);
+            userService.disconnectUser(user);
         }
     }
 }

@@ -8,9 +8,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Unwrapped;
 
 import java.io.Serializable;
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.List;
 @Getter
 @Setter
 @Document(collection = "user")
+@FieldNameConstants
 @EqualsAndHashCode(of = "id", callSuper = false)
 public class User extends BaseEntity implements Serializable {
     @Id
@@ -34,6 +37,8 @@ public class User extends BaseEntity implements Serializable {
     private List<Role> roles;
     private List<String> friendList;
     private Avatar avatar;
+    @Unwrapped(onEmpty = Unwrapped.OnEmpty.USE_NULL)
+    private UserStatusDetails statusDetails;
 
     public void addFriendList(User user) {
         if (user != null && user.getFriendList() != null) {

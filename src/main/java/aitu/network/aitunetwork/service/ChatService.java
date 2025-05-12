@@ -24,7 +24,7 @@ public class ChatService {
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatMessageService chatMessageService;
     private final ChatRoomService chatRoomService;
-    private final ChatUserService chatUserService;
+    private final UserService userService;
 
     public void processMessage(
             ChatMessage newChatMessage
@@ -40,8 +40,8 @@ public class ChatService {
         );
     }
 
-    public Map<String, Object> countNewMessages(String chatId) {
-        return Map.of("count", chatMessageService.countNewMessages(chatId));
+    public Map<String, Object> countNewMessages(String chatId, User user) {
+        return Map.of("count", chatMessageService.countNewMessages(chatId, user));
     }
 
     public List<ChatMessage> findChatMessages(String chatId) {
@@ -63,7 +63,7 @@ public class ChatService {
     }
 
     public List<User> searchUsers(String query, User user) {
-        return chatUserService.searchUsers(query, user);
+        return userService.searchUsers(query, user);
     }
 
     public ChatRoomDTO createChatRoom(NewChatRoomDTO chatRoom, User user) {
@@ -80,5 +80,9 @@ public class ChatService {
 
     public ChatMessage saveFileMessage(ChatMessage chatMessage, MultipartFile audioFile) {
         return chatMessageService.saveFileMessage(chatMessage, audioFile);
+    }
+
+    public void processMessageStatus(String messageId) {
+        chatMessageService.findChatMessage(messageId);
     }
 }
