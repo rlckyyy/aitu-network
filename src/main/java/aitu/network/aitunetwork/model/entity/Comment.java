@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @Document
-public class Comment {
+public class Comment extends BaseEntity {
     @Id
     private String id;
     private String postId;

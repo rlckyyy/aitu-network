@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @Document
 @CompoundIndex(name = "post_user_unique_idx", def = "{'postId': 1, 'userId': 1}", unique = true)
-public class Reaction {
+public class Reaction extends BaseEntity{
     @Id
     private String id;
     private String postId;

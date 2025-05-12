@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +35,6 @@ public class PostService {
                 .ownerId(postDTO.ownerId())
                 .groupId(postDTO.groupId())
                 .postType(postDTO.postType())
-                .reactions(new HashSet<>())
                 .description(postDTO.description());
 
         switch (postDTO.postType()) {
@@ -112,7 +112,12 @@ public class PostService {
     }
 
     public void reactToPost(Reaction reaction) {
-        mongoTemplate.insert(reaction);
+        Query query = new Query(Criteria.where("postId")
+                .is(reaction.getPostId()).and("userId").is(reaction.getUserId()));
+        Update update = new Update().set("reactionType", reaction.getReactionType())
+                .set("postId", reaction.getPostId())
+                .set("userId", reaction.getUserId());
+        mongoTemplate.upsert(query, update, Reaction.class);
     }
 
     public void deleteReaction(String postId, String userId) {
