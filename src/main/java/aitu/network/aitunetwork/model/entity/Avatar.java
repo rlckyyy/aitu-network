@@ -9,7 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @Getter
 @Setter
-public class Avatar extends BaseEntity{
+@EqualsAndHashCode(of = {"id", "location"}, callSuper = false)
+public class Avatar extends BaseEntity {
     private String id;
     private String location;
 }

@@ -7,9 +7,11 @@ import aitu.network.aitunetwork.model.dto.PostDTO;
 import aitu.network.aitunetwork.model.entity.Post;
 import aitu.network.aitunetwork.model.entity.Reaction;
 import aitu.network.aitunetwork.model.enums.PostType;
+import aitu.network.aitunetwork.model.event.listener.model.PostEvent;
 import aitu.network.aitunetwork.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -17,7 +19,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,6 +30,7 @@ public class PostService {
     private final FileService fileService;
     private final MongoTemplate mongoTemplate;
     private final GroupService groupService;
+    private final ApplicationEventPublisher publisher;
 
     public Post createPost(PostDTO postDTO, List<MultipartFile> files, CustomUserDetails userDetails) {
         Post.PostBuilder postBuilder = Post.builder()
@@ -49,7 +51,9 @@ public class PostService {
                     .toList();
             postBuilder.mediaFileIds(mediaLinks);
         }
-        return repository.save(postBuilder.build());
+        Post post = repository.save(postBuilder.build());
+        publisher.publishEvent(new PostEvent(post));
+        return post;
     }
 
     public Post findById(String id) {
