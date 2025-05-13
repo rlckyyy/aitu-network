@@ -34,13 +34,13 @@ public class GroupController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     Group createGroup(@RequestPart GroupCreateDTO dto,
-                      @RequestPart MultipartFile file,
+                      @RequestPart(required = false) MultipartFile file,
                       @CurrentUser CustomUserDetails details) {
-        return groupService.createGroup(dto, file ,details);
+        return groupService.createGroup(dto, file, details);
     }
 
     @PostMapping("/{groupId}/follow")
-    Group followGroup(@PathVariable String groupId, @CurrentUser CustomUserDetails details){
+    Group followGroup(@PathVariable String groupId, @CurrentUser CustomUserDetails details) {
         return groupService.followGroup(groupId, details);
     }
 }

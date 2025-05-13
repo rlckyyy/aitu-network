@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -28,20 +29,21 @@ public class GroupService {
         if (repository.existsByName(dto.name())) {
             throw new ConflictException(String.format("Group with name %s is already exist", dto.name()));
         }
-        String hexId = fileService.uploadFile(file);
         var group = Group.builder()
                 .name(dto.name())
                 .ownerId(details.user().getId())
                 .adminIds(List.of(details.user().getId()))
                 .userIds(List.of(details.user().getId()))
                 .description(dto.description())
-                .avatar(Avatar.builder()
-                        .id(hexId)
-                        .location(fileService.getLinkForResource(hexId))
-                        .build())
-                .type(dto.accessType())
-                .build();
-        return repository.save(group);
+                .type(dto.accessType());
+        if (Objects.nonNull(file)) {
+            String hexId = fileService.uploadFile(file);
+            group.avatar(Avatar.builder()
+                    .id(hexId)
+                    .location(fileService.getLinkForResource(hexId))
+                    .build());
+        }
+        return repository.save(group.build());
     }
 
     public List<Group> searchGroups(String name, String ownerId, String userId) {
