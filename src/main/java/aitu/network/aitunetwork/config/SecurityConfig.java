@@ -1,5 +1,6 @@
 package aitu.network.aitunetwork.config;
 
+import aitu.network.aitunetwork.config.security.CustomAuthenticationEntryPoint;
 import aitu.network.aitunetwork.config.security.CustomJwtFilter;
 import aitu.network.aitunetwork.config.security.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +48,7 @@ public class SecurityConfig {
     };
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint authenticationEntryPoint) throws Exception {
         return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -70,6 +71,8 @@ public class SecurityConfig {
                 .sessionManagement(manager ->
                         manager.sessionCreationPolicy(STATELESS)
                 )
+                .exceptionHandling(cus ->
+                        cus.authenticationEntryPoint(authenticationEntryPoint))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .anonymous(AbstractHttpConfigurer::disable)
                 .build();
