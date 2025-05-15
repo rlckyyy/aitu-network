@@ -13,4 +13,8 @@ public class NotFoundException extends SecureTalkException {
     public NotFoundException(Class<?> aClass, Object id) {
         super(aClass, id, HTTP_STATUS);
     }
+
+    public NotFoundException(Class<?> aClass, String field, Object id) {
+        super(aClass, field, id, HTTP_STATUS);
+    }
 }

@@ -14,11 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -36,15 +32,25 @@ public class AuthController {
 
     @PostMapping("/login")
     JwtResponse login(@RequestBody @Valid LoginRequest loginRequest,
-                             HttpServletResponse response) {
+                      HttpServletResponse response) {
         JwtResponse jwtResponse = authService.login(loginRequest);
         CookieUtils.addJwtToCookie(response, jwtResponse.token());
         return jwtResponse;
     }
 
     @GetMapping("/check")
-    Map<String, Boolean> checkAuth() {
-        return authService.checkAuth();
+    Map<String, Boolean> checkAuthentication() {
+        return authService.isAuthenticated();
+    }
+
+    @PatchMapping("/resend")
+    void resendConfirmationToken(@RequestParam String email) {
+        authService.resendConfirmationToken(email);
+    }
+
+    @GetMapping("/confirm")
+    void confirmAccount(@RequestParam String token) {
+        authService.confirmAccount(token);
     }
 
     @GetMapping("/me")

@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Unwrapped;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @AllArgsConstructor
@@ -37,6 +38,9 @@ public class User extends BaseEntity implements Serializable {
     private List<Role> roles;
     private List<String> friendList;
     private Avatar avatar;
+    private boolean enabled;
+    private String verificationToken;
+    private LocalDateTime tokenExpiryDate;
     @Unwrapped(onEmpty = Unwrapped.OnEmpty.USE_NULL)
     private UserStatusDetails statusDetails;
 

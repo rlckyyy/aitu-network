@@ -20,6 +20,8 @@ spring:
     multipart:
       max-file-size: 30MB
       max-request-size: 30MB
+  mail:
+    password: talz arjo bzlq dpql
 logging:
   level:
     org.springframework.security: info

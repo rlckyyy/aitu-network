@@ -17,4 +17,5 @@ public class NotificationEventListener {
         log.info("creating notification for Post Event");
         notificationService.sendPostNotification(postEvent);
     }
+
 }
