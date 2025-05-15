@@ -13,6 +13,7 @@ import aitu.network.aitunetwork.model.enums.Role;
 import aitu.network.aitunetwork.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -42,11 +43,16 @@ public class AuthService {
     private final MailService mailService;
     private final MongoTemplate mongoTemplate;
 
+    @Value("${secure-talk.mail-confirmation}")
+    private Boolean isEmailConfirmationEnabled;
+
     public CompletableFuture<User> registerUser(RegisterRequest request) {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 User user = mapUserDTOToUser(request);
-                sendVerificationMessage(user);
+                if (isEmailConfirmationEnabled) {
+                    sendVerificationMessage(user);
+                }
                 return userRepository.save(user);
             } catch (DuplicateKeyException e) {
                 throw new ConflictException("errors.409.users.email");
@@ -113,7 +119,7 @@ public class AuthService {
                 .username(userDTO.username())
                 .password(passwordEncoder.encode(userDTO.password()))
                 .roles(List.of(Role.USER))
-                .enabled(false)
+                .enabled(!isEmailConfirmationEnabled)
                 .verificationToken(UUID.randomUUID().toString())
                 .tokenExpiryDate(LocalDateTime.now().plusHours(24))
                 .friendList(new ArrayList<>())

@@ -7,3 +7,6 @@ spring:
 logging:
   level:
     org.springframework.web: debug
+
+secure-talk:
+  mail-confirmation: ${MAIL_CONFIRMATION_ENABLED:false}

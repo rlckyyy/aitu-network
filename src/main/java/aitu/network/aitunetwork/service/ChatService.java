@@ -9,14 +9,20 @@ import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
 import aitu.network.aitunetwork.model.entity.chat.ChatRoom;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
+import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.LookupOperation;
+import org.springframework.data.mongodb.core.aggregation.MatchOperation;
+import org.springframework.data.mongodb.core.aggregation.ReplaceRootOperation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,6 +32,7 @@ public class ChatService {
     private final ChatMessageService chatMessageService;
     private final ChatRoomService chatRoomService;
     private final UserService userService;
+    private final MongoTemplate mongoTemplate;
 
     public void processMessage(
             ChatMessage newChatMessage
@@ -50,13 +57,24 @@ public class ChatService {
     }
 
     public List<ChatRoomsWithMessages> findChats(User user) {
-        Map<String, ChatRoomDTO> chatRooms = chatRoomService.findUserChatRooms(user).stream()
-                .collect(Collectors.toMap(ChatRoomDTO::chatId, Function.identity()));
+        MatchOperation match = Aggregation.match(Criteria.where("participants.$id").in(new ObjectId(user.getId())));
+        LookupOperation lookup = Aggregation.lookup(
+                "chatMessage",
+                ChatRoom.Fields.chatId,
+                ChatMessage.Fields.chatId,
+                ChatRoomsWithMessages.Fields.messages
+        );
+        ReplaceRootOperation rootReplacement = Aggregation.replaceRoot(
+                context -> new Document(
+                        "$mergeObjects", List.of(
+                        new Document(ChatRoomsWithMessages.Fields.chatRoom, "$$ROOT"),
+                        new Document(ChatRoomsWithMessages.Fields.messages, "$".concat(ChatRoomsWithMessages.Fields.messages))
+                ))
+        );
 
-        Map<ChatRoomDTO, List<ChatMessage>> chatRoomsWithMessagesMap = chatMessageService.findChatMessages(chatRooms.keySet()).stream()
-                .collect(Collectors.groupingBy(chatMessage -> chatRooms.get(chatMessage.getChatId())));
+        Aggregation aggregation = Aggregation.newAggregation(match, lookup, rootReplacement);
 
-        return ChatRoomsWithMessages.fromMap(chatRoomsWithMessagesMap);
+        return mongoTemplate.aggregate(aggregation, ChatRoom.class, ChatRoomsWithMessages.class).getMappedResults();
     }
 
     public List<ChatRoomDTO> findUserChatRooms(User user) {

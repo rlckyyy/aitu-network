@@ -6,21 +6,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@FieldNameConstants
 public class ChatRoomsWithMessages {
     private ChatRoomDTO chatRoom;
     private List<ChatMessage> messages;
-
-    public static List<ChatRoomsWithMessages> fromMap(Map<ChatRoomDTO, List<ChatMessage>> map) {
-        return map.entrySet().stream()
-                .map(entry -> new ChatRoomsWithMessages(entry.getKey(), entry.getValue()))
-                .toList();
-    }
 }
