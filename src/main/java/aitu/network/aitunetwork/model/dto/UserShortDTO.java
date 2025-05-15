@@ -5,7 +5,6 @@ import aitu.network.aitunetwork.model.entity.UserStatusDetails;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data

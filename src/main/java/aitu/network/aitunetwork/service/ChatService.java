@@ -2,6 +2,7 @@ package aitu.network.aitunetwork.service;
 
 import aitu.network.aitunetwork.model.dto.ChatRoomsWithMessages;
 import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
+import aitu.network.aitunetwork.model.dto.chat.MessageMark;
 import aitu.network.aitunetwork.model.dto.chat.NewChatRoomDTO;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
@@ -82,7 +83,7 @@ public class ChatService {
         return chatMessageService.saveFileMessage(chatMessage, audioFile);
     }
 
-    public void processMessageStatus(String messageId) {
-        chatMessageService.findChatMessage(messageId);
+    public void processMessageStatus(MessageMark messageMark) {
+        chatMessageService.markChatMessageAsRead(messageMark);
     }
 }

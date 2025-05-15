@@ -1,14 +1,16 @@
 package aitu.network.aitunetwork.controller.ws;
 
+import aitu.network.aitunetwork.model.dto.chat.MessageMark;
 import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
 import aitu.network.aitunetwork.service.ChatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class ChatMessageController {
@@ -21,10 +23,9 @@ public class ChatMessageController {
         chatService.processMessage(newChatMessage);
     }
 
-    @MessageMapping("/chat/message/{messageId}")
-    public void processMessageStatus(
-            @DestinationVariable("messageId") String messageId
-    ) {
-        chatService.processMessageStatus(messageId);
+    @MessageMapping("/chat/message/status")
+    public void processMessageStatus(@Payload MessageMark messageMark) {
+        log.info("Message with id {} marked as read", messageMark.getMessageIds());
+        chatService.processMessageStatus(messageMark);
     }
 }

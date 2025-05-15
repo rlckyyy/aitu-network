@@ -1,5 +1,6 @@
 package aitu.network.aitunetwork.service;
 
+import aitu.network.aitunetwork.model.dto.chat.MessageMark;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
 import aitu.network.aitunetwork.model.enums.MessageStatus;
@@ -53,17 +54,18 @@ public class ChatMessageService {
         return chatMessageRepository.findAllByChatIdIn(chatIds);
     }
 
-    public void findChatMessage(String messageId) {
-        UpdateResult updateResult = mongoTemplate.updateFirst(
-                Query.query(Criteria.where("_id").is(messageId)),
+    public void markChatMessageAsRead(MessageMark messageMark) {
+        UpdateResult updateResult = mongoTemplate.updateMulti(
+                Query.query(Criteria.where("_id").in(messageMark.getMessageIds())),
                 Update.update(ChatMessage.Fields.status, MessageStatus.RECEIVED),
                 ChatMessage.class
         );
+
         long matchedCount = updateResult.getMatchedCount();
         long modifiedCount = updateResult.getModifiedCount();
         if (matchedCount != modifiedCount) {
             throw new RuntimeException(
-                    "Matched and modified count are different, matchedCount=" + matchedCount + "; modifiedCount=" + modifiedCount
+                    "Matched and modified count are different, matchedCount = " + matchedCount + "; modifiedCount = " + modifiedCount
             );
         }
     }
