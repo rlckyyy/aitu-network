@@ -38,7 +38,7 @@ public class MailService {
             String html = writer.toString();
 
             MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "UTF-8");
-            helper.setFrom("reluckytryhrd@gmail.com");
+            helper.setFrom("noreply@aitu.kz");
             helper.setTo(user.getEmail());
             helper.setSubject("Confirm your email");
             helper.setText(html, true);
