@@ -13,12 +13,15 @@ import aitu.network.aitunetwork.util.CookieUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -38,11 +41,6 @@ public class AuthController {
         JwtResponse jwtResponse = authService.login(loginRequest);
         CookieUtils.addJwtToCookie(response, jwtResponse.token());
         return jwtResponse;
-    }
-
-    @GetMapping("/check")
-    Map<String, Boolean> checkAuthentication() {
-        return authService.isAuthenticated();
     }
 
     @PatchMapping("/resend")

@@ -45,7 +45,7 @@ public class ChatRoomService {
                 String chatId = dto.chatRoomType().generateChatId(dto.participantsIds());
                 return chatRoomRepository.findByChatId(chatId)
                         .map(chatRoom -> ChatMapper.mapToChatRoomDTO(chatRoom, user))
-                        .orElseThrow(() -> new NotFoundException("Chat room with chat id: " + chatId + " not found"));
+                        .orElseThrow(() -> new NotFoundException("errors.404.chats"));
             } else {
                 throw e;
             }
@@ -71,17 +71,17 @@ public class ChatRoomService {
 
     private User fetchUser(String id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("User with id: " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("errors.404.users"));
     }
 
     private ChatRoom fetch(String id) {
         return chatRoomRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Chat room with id: " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("errors.404.chats"));
     }
 
     private ChatRoom fetchByChatId(String chatId) {
         return chatRoomRepository.findByChatId(chatId)
-                .orElseThrow(() -> new NotFoundException("Chat room with chat id: " + chatId + " not found"));
+                .orElseThrow(() -> new NotFoundException("errors.404.chats"));
     }
 
     private boolean isChatIdDuplicate(DuplicateKeyException e) {

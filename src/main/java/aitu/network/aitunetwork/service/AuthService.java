@@ -1,7 +1,11 @@
 package aitu.network.aitunetwork.service;
 
 
-import aitu.network.aitunetwork.common.exception.*;
+import aitu.network.aitunetwork.common.exception.BadRequestException;
+import aitu.network.aitunetwork.common.exception.ConflictException;
+import aitu.network.aitunetwork.common.exception.GoneException;
+import aitu.network.aitunetwork.common.exception.NotFoundException;
+import aitu.network.aitunetwork.common.exception.UnauthorizedException;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.config.security.CustomUserDetailsService;
 import aitu.network.aitunetwork.config.security.JwtService;
@@ -20,13 +24,15 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -75,11 +81,6 @@ public class AuthService {
         var jwt = jwtService.generateToken(user);
         log.info("User {} logged in", request.email());
         return new JwtResponse(jwt);
-    }
-
-    public Map<String, Boolean> isAuthenticated() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return Map.of("authenticated", authentication != null);
     }
 
     public void confirmAccount(String token) {

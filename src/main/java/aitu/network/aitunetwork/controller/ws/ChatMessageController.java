@@ -25,7 +25,6 @@ public class ChatMessageController {
 
     @MessageMapping("/chat/message/status")
     public void processMessageStatus(@Payload MessageMark messageMark) {
-        log.info("Message with id {} marked as read", messageMark.getMessageIds());
         chatService.processMessageStatus(messageMark);
     }
 }
