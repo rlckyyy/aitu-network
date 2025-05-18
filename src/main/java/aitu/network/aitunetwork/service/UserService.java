@@ -3,7 +3,7 @@ package aitu.network.aitunetwork.service;
 
 import aitu.network.aitunetwork.common.exception.ConflictException;
 import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
-import aitu.network.aitunetwork.model.dto.StatusUpdate;
+import aitu.network.aitunetwork.model.dto.chat.StatusUpdate;
 import aitu.network.aitunetwork.model.dto.UserShortDTO;
 import aitu.network.aitunetwork.model.dto.UserUpdateDTO;
 import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;

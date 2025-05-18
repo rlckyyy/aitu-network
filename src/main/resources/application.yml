@@ -6,6 +6,8 @@ secure-talk:
   domain: ${SECURE_TALK_DOMAIN:https://aitunet.kz/api}
   file-download-path: ${secure-talk.domain}/v1/file/
   mail-confirmation: ${MAIL_CONFIRMATION_ENABLED:true}
+  chat:
+    user-destination: ${USER_WS_DESTINATION:/queue/messages}
 spring:
   data:
     mongodb:

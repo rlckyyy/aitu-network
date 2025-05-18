@@ -18,4 +18,6 @@ public interface UserRepository extends MongoRepository<User, String> {
     default Optional<User> findByIdOrEmail(String idOrEmail) {
         return findByIdOrEmail(idOrEmail, idOrEmail);
     }
+
+    Optional<User> findByVerificationToken(String verificationToken);
 }

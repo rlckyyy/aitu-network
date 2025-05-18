@@ -2,7 +2,7 @@ package aitu.network.aitunetwork.controller;
 
 import aitu.network.aitunetwork.common.annotations.CurrentUser;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
-import aitu.network.aitunetwork.model.dto.ChatRoomsWithMessages;
+import aitu.network.aitunetwork.model.dto.chat.ChatRoomsWithMessages;
 import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
 import aitu.network.aitunetwork.model.dto.chat.NewChatRoomDTO;
 import aitu.network.aitunetwork.model.entity.User;

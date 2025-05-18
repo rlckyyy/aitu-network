@@ -1,4 +1,4 @@
-package aitu.network.aitunetwork.model.dto;
+package aitu.network.aitunetwork.model.dto.chat;
 
 import aitu.network.aitunetwork.model.enums.ConnectionStatus;
 import lombok.AllArgsConstructor;

@@ -1,6 +1,5 @@
-package aitu.network.aitunetwork.model.dto;
+package aitu.network.aitunetwork.model.dto.chat;
 
-import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
 import aitu.network.aitunetwork.model.entity.chat.ChatMessage;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

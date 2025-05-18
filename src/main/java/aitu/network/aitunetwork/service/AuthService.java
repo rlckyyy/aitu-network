@@ -19,9 +19,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,7 +28,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -47,7 +43,6 @@ public class AuthService {
     private final CustomUserDetailsService customUserDetailsService;
     private final Executor executor;
     private final MailService mailService;
-    private final MongoTemplate mongoTemplate;
 
     @Value("${secure-talk.mail-confirmation}")
     private Boolean isEmailConfirmationEnabled;
@@ -84,8 +79,7 @@ public class AuthService {
     }
 
     public void confirmAccount(String token) {
-        Query query = new Query(Criteria.where("verificationToken").is(token));
-        User user = Optional.ofNullable(mongoTemplate.findOne(query, User.class))
+        User user = userRepository.findByVerificationToken(token)
                 .orElseThrow(() ->
                         new NotFoundException(String.format("%s user with this token not found", token)));
         if (user.isEnabled()) {
@@ -100,17 +94,16 @@ public class AuthService {
             throw new BadRequestException("Token expired");
         }
         user.setEnabled(true);
-        mongoTemplate.save(user);
+        userRepository.save(user);
     }
 
     public void resendConfirmationToken(String username) {
-        Query query = new Query(Criteria.where("email").is(username));
-        User user = Optional.ofNullable(mongoTemplate.findOne(query, User.class))
+        User user = userRepository.findUserByEmail(username)
                 .orElseThrow(() ->
                         new NotFoundException(User.class, User.Fields.email, username));
         user.setTokenExpiryDate(LocalDateTime.now().plusHours(24));
         user.setVerificationToken(UUID.randomUUID().toString());
-        mongoTemplate.save(user);
+        userRepository.save(user);
         sendVerificationMessage(user);
     }
 
