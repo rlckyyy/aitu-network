@@ -19,5 +19,4 @@ public interface UserRepository extends MongoRepository<User, String> {
         return findByIdOrEmail(idOrEmail, idOrEmail);
     }
 
-    Optional<User> findByVerificationToken(String verificationToken);
 }

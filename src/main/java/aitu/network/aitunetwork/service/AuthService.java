@@ -16,16 +16,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -40,6 +41,7 @@ public class AuthService {
     private final CustomUserDetailsService customUserDetailsService;
     private final Executor executor;
     private final MailService mailService;
+    private final MongoTemplate mongoTemplate;
 
     @Value("${secure-talk.mail-confirmation}")
     private Boolean isEmailConfirmationEnabled;
@@ -76,9 +78,10 @@ public class AuthService {
     }
 
     public void confirmAccount(String token) {
-        User user = userRepository.findByVerificationToken(token)
-                .orElseThrow(() ->
-                        new NotFoundException(String.format("%s user with this token not found", token)));
+        Query query = new Query(Criteria.where("verificationTokenHolder.token").is(token));
+        User user = Optional.ofNullable(mongoTemplate.findOne(query, User.class)).orElseThrow(() ->
+                new NotFoundException(String.format("%s user with this verification token not found",
+                        token)));
         if (user.isEnabled()) {
             throw new GoneException("User is already enabled");
         }
