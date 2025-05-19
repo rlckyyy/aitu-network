@@ -53,6 +53,18 @@ public class AuthController {
         authService.confirmAccount(token);
     }
 
+    @GetMapping("/forgot")
+    void forgotPassword(@RequestParam String email) {
+        authService.forgotPassword(email);
+    }
+
+    @PatchMapping("/recover")
+    void recoverPassword(@RequestParam String token,
+                         @RequestParam String email,
+                         @RequestParam String password){
+        authService.recoverPassword(token, email, password);
+    }
+
     @GetMapping("/me")
     UserDTO me(@CurrentUser UserDetails userDetails) {
         User user = ((CustomUserDetails) userDetails).user();

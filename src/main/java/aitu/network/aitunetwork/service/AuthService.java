@@ -1,17 +1,14 @@
 package aitu.network.aitunetwork.service;
 
 
-import aitu.network.aitunetwork.common.exception.BadRequestException;
-import aitu.network.aitunetwork.common.exception.ConflictException;
-import aitu.network.aitunetwork.common.exception.GoneException;
-import aitu.network.aitunetwork.common.exception.NotFoundException;
-import aitu.network.aitunetwork.common.exception.UnauthorizedException;
+import aitu.network.aitunetwork.common.exception.*;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.config.security.CustomUserDetailsService;
 import aitu.network.aitunetwork.config.security.JwtService;
 import aitu.network.aitunetwork.model.dto.JwtResponse;
 import aitu.network.aitunetwork.model.dto.LoginRequest;
 import aitu.network.aitunetwork.model.dto.RegisterRequest;
+import aitu.network.aitunetwork.model.dto.TokenHolder;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.Role;
 import aitu.network.aitunetwork.repository.UserRepository;
@@ -85,26 +82,57 @@ public class AuthService {
         if (user.isEnabled()) {
             throw new GoneException("User is already enabled");
         }
-
-        if (Objects.isNull(user.getTokenExpiryDate())) {
-            throw new ConflictException("Token expiry date is null");
-        }
-
-        if (LocalDateTime.now().isAfter(user.getTokenExpiryDate())) {
-            throw new BadRequestException("Token expired");
-        }
+        validateTokenHolder(user.getVerificationTokenHolder(), token);
         user.setEnabled(true);
         userRepository.save(user);
     }
 
     public void resendConfirmationToken(String username) {
-        User user = userRepository.findUserByEmail(username)
+        User user = userRepository.findByIdOrEmail(username)
                 .orElseThrow(() ->
                         new NotFoundException(User.class, User.Fields.email, username));
-        user.setTokenExpiryDate(LocalDateTime.now().plusHours(24));
-        user.setVerificationToken(UUID.randomUUID().toString());
+        var verificationTokenHolder = new TokenHolder(UUID.randomUUID().toString(),
+                LocalDateTime.now().plusHours(24));
+        user.setVerificationTokenHolder(verificationTokenHolder);
         userRepository.save(user);
         sendVerificationMessage(user);
+    }
+
+    public void forgotPassword(String email) {
+        User user = userRepository.findByIdOrEmail(email).orElseThrow(() ->
+                new NotFoundException(User.class, "email", email));
+        TokenHolder recoverTokenHolder = new TokenHolder(UUID.randomUUID().toString(),
+                LocalDateTime.now().plusHours(24));
+        user.setRecoverTokenHolder(recoverTokenHolder);
+        userRepository.save(user);
+        CompletableFuture.runAsync(() -> mailService.sendForgotPasswordMessage(user), executor);
+    }
+
+    public void recoverPassword(String token, String email, String password) {
+        User user = userRepository.findByIdOrEmail(email)
+                .orElseThrow(() -> new NotFoundException(User.class, "email", email));
+        validateTokenHolder(user.getRecoverTokenHolder(), token);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setRecoverTokenHolder(null);
+        userRepository.save(user);
+    }
+
+    private void validateTokenHolder(TokenHolder tokenHolder, String token) {
+        if (Objects.isNull(tokenHolder)) {
+            throw new BadRequestException("Token holder is missing");
+        }
+        if (Objects.isNull(tokenHolder.token())) {
+            throw new BadRequestException("Recover token is not assigned to the user");
+        }
+        if (!Objects.equals(token, tokenHolder.token())) {
+            throw new BadRequestException("Provided token does not match the stored token");
+        }
+        if (Objects.isNull(tokenHolder.expiryDate())) {
+            throw new ConflictException("Recover token has no expiration date");
+        }
+        if (LocalDateTime.now().isAfter(tokenHolder.expiryDate())) {
+            throw new BadRequestException("Recover token has expired");
+        }
     }
 
     private User mapUserDTOToUser(RegisterRequest userDTO) {
@@ -114,8 +142,8 @@ public class AuthService {
                 .password(passwordEncoder.encode(userDTO.password()))
                 .roles(List.of(Role.USER))
                 .enabled(!isEmailConfirmationEnabled)
-                .verificationToken(UUID.randomUUID().toString())
-                .tokenExpiryDate(LocalDateTime.now().plusHours(24))
+                .verificationTokenHolder(new TokenHolder(UUID.randomUUID().toString(),
+                        LocalDateTime.now().plusHours(24)))
                 .friendList(new ArrayList<>())
                 .build();
     }
