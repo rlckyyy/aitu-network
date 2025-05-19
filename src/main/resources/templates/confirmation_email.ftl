@@ -30,8 +30,6 @@
     <p>
         <a class="btn" href="${confirmationUrl}">Confirm Email</a>
     </p>
-    <p>If the button doesn't work, copy and paste this link into your browser:</p>
-    <p><a href="${confirmationUrl}">${confirmationUrl}</a></p>
     <p>This link will expire in 24 hours.</p>
     <br>
     <p>Best regards,<br>The Team</p>
