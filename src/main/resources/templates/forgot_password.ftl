@@ -35,7 +35,7 @@
 <div class="container">
     <h2>Hello, ${name}!</h2>
     <p>We received a request to reset your password. Click the button below to proceed:</p>
-    <a class="button" href="https://aitunet.kz/auth/recover?email=${email}&token=${token}">Reset Password</a>
+    <a class="button" href="https://aitunet.kz/auth/recover?token=${token}">Reset Password</a>
     <p>If you didn't request a password reset, you can ignore this email.</p>
     <div class="footer">
         <p>This message was sent by AITU Net. Do not reply to this email.</p>

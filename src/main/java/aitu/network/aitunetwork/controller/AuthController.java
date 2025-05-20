@@ -54,9 +54,8 @@ public class AuthController {
 
     @PatchMapping("/recover")
     void recoverPassword(@RequestParam String token,
-                         @RequestParam String email,
                          @RequestParam String password) {
-        authService.recoverPassword(token, email, password);
+        authService.recoverPassword(token, password);
     }
 
     @GetMapping("/me")

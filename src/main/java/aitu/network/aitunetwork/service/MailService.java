@@ -49,13 +49,12 @@ public class MailService {
             throw new RuntimeException("Failed to send confirmation email", e);
         }
     }
-    // aitunet.kz/users/recover
+
     public void sendForgotPasswordMessage(User user) {
         MimeMessage message = mailSender.createMimeMessage();
         try {
             Map<String, Object> model = new HashMap<>();
             model.put("name", user.getUsername());
-            model.put("email", user.getEmail());
             model.put("token", user.getRecoverTokenHolder().token());
             Template template = freemarkerConfig.getTemplate("forgot_password.ftl");
             StringWriter writer = new StringWriter();
@@ -67,7 +66,7 @@ public class MailService {
             helper.setSubject("Confirm your email");
             helper.setText(html, true);
             mailSender.send(message);
-        } catch (IOException | TemplateException | MessagingException e){
+        } catch (IOException | TemplateException | MessagingException e) {
             throw new RuntimeException("Failed to send confirmation email", e);
         }
     }

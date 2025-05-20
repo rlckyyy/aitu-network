@@ -111,9 +111,12 @@ public class AuthService {
         CompletableFuture.runAsync(() -> mailService.sendForgotPasswordMessage(user), executor);
     }
 
-    public void recoverPassword(String token, String email, String password) {
-        User user = userRepository.findByIdOrEmail(email)
-                .orElseThrow(() -> new NotFoundException(User.class, "email", email));
+    public void recoverPassword(String token, String password) {
+        Query query = new Query(Criteria.where("recoverTokenHolder.token").is(token));
+        User user = Optional.ofNullable(mongoTemplate.findOne(query, User.class))
+                .orElseThrow(() ->
+                        new NotFoundException(String.format("%s user with this verification token not found",
+                                token)));
         validateTokenHolder(user.getRecoverTokenHolder(), token);
         user.setPassword(passwordEncoder.encode(password));
         user.setRecoverTokenHolder(null);
