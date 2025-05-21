@@ -6,6 +6,7 @@ import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.dto.GroupCreateDTO;
 import aitu.network.aitunetwork.model.entity.Avatar;
 import aitu.network.aitunetwork.model.entity.Group;
+import aitu.network.aitunetwork.model.enums.AccessType;
 import aitu.network.aitunetwork.repository.GroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -14,6 +15,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,7 +37,7 @@ public class GroupService {
                 .adminIds(List.of(details.user().getId()))
                 .userIds(List.of(details.user().getId()))
                 .description(dto.description())
-                .type(dto.accessType());
+                .accessType(dto.accessType());
         if (Objects.nonNull(file)) {
             String hexId = fileService.uploadFile(file);
             group.avatar(Avatar.builder()
@@ -69,5 +71,13 @@ public class GroupService {
         Group group = findById(groupId);
         group.getUserIds().add(details.user().getId());
         return repository.save(group);
+    }
+
+    public Collection<Group> findByUserIdsContaining(String userId) {
+        return repository.findByUserIdsContains(userId);
+    }
+
+    public Collection<Group> fetchGroupsByAccessType(AccessType accessType) {
+        return repository.findByAccessType(accessType);
     }
 }

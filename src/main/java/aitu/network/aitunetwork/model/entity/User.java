@@ -1,6 +1,7 @@
 package aitu.network.aitunetwork.model.entity;
 
 import aitu.network.aitunetwork.model.dto.TokenHolder;
+import aitu.network.aitunetwork.model.enums.AccessType;
 import aitu.network.aitunetwork.model.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
@@ -38,6 +39,7 @@ public class User extends BaseEntity implements Serializable {
     private TokenHolder recoverTokenHolder;
     @Unwrapped(onEmpty = Unwrapped.OnEmpty.USE_NULL)
     private UserStatusDetails statusDetails;
+    private AccessType accessType;
 
     public void addFriendList(User user) {
         if (user != null && user.getFriendList() != null) {

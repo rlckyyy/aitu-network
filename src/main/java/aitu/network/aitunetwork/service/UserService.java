@@ -3,13 +3,14 @@ package aitu.network.aitunetwork.service;
 
 import aitu.network.aitunetwork.common.exception.ConflictException;
 import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
-import aitu.network.aitunetwork.model.dto.chat.StatusUpdate;
 import aitu.network.aitunetwork.model.dto.UserShortDTO;
 import aitu.network.aitunetwork.model.dto.UserUpdateDTO;
 import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
+import aitu.network.aitunetwork.model.dto.chat.StatusUpdate;
 import aitu.network.aitunetwork.model.entity.Avatar;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.entity.UserStatusDetails;
+import aitu.network.aitunetwork.model.enums.AccessType;
 import aitu.network.aitunetwork.model.enums.ConnectionStatus;
 import aitu.network.aitunetwork.model.mapper.UserMapper;
 import aitu.network.aitunetwork.repository.UserRepository;
@@ -24,12 +25,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
-import java.util.AbstractCollection;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -68,6 +64,7 @@ public class UserService {
     public User updateUser(UserUpdateDTO userDTO, User user) {
         user.setUsername(userDTO.username());
         user.setDescription(userDTO.description());
+        user.setAccessType(userDTO.accessType());
         return userRepository.save(user);
     }
 
@@ -137,5 +134,9 @@ public class UserService {
                 .set(connectedOrLeftOn, Instant.now());
 
         mongoTemplate.updateFirst(query, update, User.class);
+    }
+
+    public Collection<User> fetchUsersByAccessType(AccessType accessType) {
+        return userRepository.findByAccessType(accessType);
     }
 }

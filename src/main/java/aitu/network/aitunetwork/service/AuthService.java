@@ -10,6 +10,7 @@ import aitu.network.aitunetwork.model.dto.LoginRequest;
 import aitu.network.aitunetwork.model.dto.RegisterRequest;
 import aitu.network.aitunetwork.model.dto.TokenHolder;
 import aitu.network.aitunetwork.model.entity.User;
+import aitu.network.aitunetwork.model.enums.AccessType;
 import aitu.network.aitunetwork.model.enums.Role;
 import aitu.network.aitunetwork.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -151,6 +151,7 @@ public class AuthService {
                 .verificationTokenHolder(new TokenHolder(UUID.randomUUID().toString(),
                         LocalDateTime.now().plusHours(24)))
                 .friendList(new ArrayList<>())
+                .accessType(AccessType.PUBLIC)
                 .build();
     }
 

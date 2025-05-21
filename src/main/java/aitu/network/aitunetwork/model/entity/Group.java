@@ -14,7 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class Group extends BaseEntity{
+public class Group extends BaseEntity {
     @Id
     private String id;
     @Indexed(unique = true)
@@ -24,6 +24,6 @@ public class Group extends BaseEntity{
     private String ownerId;
     private List<String> adminIds;
     private List<String> postIds;
-    private AccessType type;
+    private AccessType accessType;
     private Avatar avatar;
 }

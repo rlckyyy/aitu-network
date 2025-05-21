@@ -4,8 +4,11 @@ import aitu.network.aitunetwork.common.exception.ConflictException;
 import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.dto.PostDTO;
+import aitu.network.aitunetwork.model.entity.Group;
 import aitu.network.aitunetwork.model.entity.Post;
 import aitu.network.aitunetwork.model.entity.Reaction;
+import aitu.network.aitunetwork.model.entity.User;
+import aitu.network.aitunetwork.model.enums.AccessType;
 import aitu.network.aitunetwork.model.enums.PostType;
 import aitu.network.aitunetwork.model.event.listener.model.PostEvent;
 import aitu.network.aitunetwork.repository.PostRepository;
@@ -16,12 +19,14 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +35,7 @@ public class PostService {
     private final FileService fileService;
     private final MongoTemplate mongoTemplate;
     private final GroupService groupService;
+    private final UserService userService;
     private final ApplicationEventPublisher publisher;
 
     public Post createPost(PostDTO postDTO, List<MultipartFile> files, CustomUserDetails userDetails) {
@@ -62,23 +68,42 @@ public class PostService {
                         new EntityNotFoundException(Post.class, id));
     }
 
-    public List<Post> searchPosts(String ownerId,
-                                  String groupId,
-                                  PostType postType,
-                                  String description) {
+    public List<Post> searchPosts(String ownerId, String groupId, PostType postType, String description) {
         Query query = new Query();
+        List<Criteria> criteriaList = new ArrayList<>();
+
         if (StringUtils.isNotBlank(ownerId)) {
-            query.addCriteria(Criteria.where("ownerId").is(ownerId));
+            criteriaList.add(Criteria.where("ownerId").is(ownerId));
         }
+
         if (StringUtils.isNotBlank(groupId)) {
-            query.addCriteria(Criteria.where("groupId").is(groupId));
+            criteriaList.add(Criteria.where("groupId").is(groupId));
         }
+
         if (postType != null) {
-            query.addCriteria(Criteria.where("postType").is(postType));
+            criteriaList.add(Criteria.where("postType").is(postType));
         }
+
         if (StringUtils.isNotBlank(description)) {
-            query.addCriteria(Criteria.where("description").regex(".*" + description + ".*", "i"));
+            criteriaList.add(Criteria.where("description").regex(".*" + description + ".*", "i"));
         }
+        if (StringUtils.isBlank(ownerId) && StringUtils.isBlank(groupId)) {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+            if (auth == null || !auth.isAuthenticated()) {
+                Set<String> publicOwnerIds = Stream.concat(
+                        userService.fetchUsersByAccessType(AccessType.PUBLIC).stream().map(User::getId),
+                        groupService.fetchGroupsByAccessType(AccessType.PUBLIC).stream().map(Group::getId)
+                ).collect(Collectors.toSet());
+
+                criteriaList.add(Criteria.where("ownerId").in(publicOwnerIds));
+            } else {
+                User user = userService.getById(auth.getName());
+                criteriaList.add(buildAccessCriteria(user));
+            }
+        }
+
+        query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
         return mongoTemplate.find(query, Post.class);
     }
 
@@ -143,6 +168,29 @@ public class PostService {
                 .filter(id -> id.equals(userDetails.user().getId()))
                 .findAny().orElseThrow(() -> new ConflictException("errors.409.resource.owner"));
         builder.resource(group.getName());
+    }
+
+    private Criteria buildAccessCriteria(User user) {
+        Set<String> allowedOwnerIds = new HashSet<>();
+
+        allowedOwnerIds.addAll(
+                userService.fetchUsersByAccessType(AccessType.PUBLIC)
+                        .stream().map(User::getId).toList()
+        );
+        allowedOwnerIds.addAll(user.getFriendList());
+
+        allowedOwnerIds.addAll(
+                groupService.fetchGroupsByAccessType(AccessType.PUBLIC)
+                        .stream().map(Group::getId).toList()
+        );
+        allowedOwnerIds.addAll(
+                groupService.findByUserIdsContaining(user.getId())
+                        .stream().map(Group::getId).toList()
+        );
+
+        allowedOwnerIds.add(user.getId());
+
+        return Criteria.where("ownerId").in(allowedOwnerIds);
     }
 
 }
