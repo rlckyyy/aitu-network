@@ -44,7 +44,7 @@ public class CommentService {
     public Comment editContent(StringWrapper content, String commentId) {
         var query = new Query(Criteria.where("_id").is(commentId));
         var update = new Update();
-        update.addToSet("content", content.content());
+        update.set("content", content.content());
         return mongoTemplate.findAndModify(query, update, Comment.class);
     }
 
