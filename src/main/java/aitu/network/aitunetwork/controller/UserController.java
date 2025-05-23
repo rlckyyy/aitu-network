@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,6 +33,11 @@ public class UserController {
     @GetMapping("/public/{id}")
     User getUserById(@PathVariable String id) {
         return userService.getById(id);
+    }
+
+    @GetMapping("/public/search")
+    List<User> searchUsers(@RequestParam String query) {
+        return userService.searchUsers(query);
     }
 
     @PatchMapping

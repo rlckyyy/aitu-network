@@ -110,11 +110,8 @@ public class UserService {
                 );
     }
 
-    public List<User> searchUsers(String query, User currentUser) {
-        List<User> users = userRepository.findAllByEmailContainsIgnoreCaseOrUsernameContainsIgnoreCase(query, query);
-        return users.stream()
-                .filter(user -> !user.getEmail().equalsIgnoreCase(currentUser.getEmail()))
-                .toList();
+    public List<User> searchUsers(String query) {
+        return userRepository.findAllByEmailContainsIgnoreCaseOrUsernameContainsIgnoreCase(query, query);
     }
 
     public void connectUser(User user) {

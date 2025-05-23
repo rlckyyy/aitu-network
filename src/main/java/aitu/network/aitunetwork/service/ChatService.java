@@ -83,9 +83,6 @@ public class ChatService {
         return chatRoomService.findUserChatRooms(user);
     }
 
-    public List<User> searchUsers(String query, User user) {
-        return userService.searchUsers(query, user);
-    }
 
     public ChatRoomDTO createChatRoom(NewChatRoomDTO chatRoom, User user) {
         ChatRoomDTO dto = chatRoomService.createChatRoom(chatRoom, user);

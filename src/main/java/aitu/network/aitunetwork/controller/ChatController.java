@@ -65,11 +65,6 @@ public class ChatController {
         return chatService.findUserChatRooms(userDetails.resolveUserId(userId, userFetcher));
     }
 
-    @GetMapping("/users/search")
-    List<User> searchUsers(@RequestParam String query, @CurrentUser CustomUserDetails currentUser) {
-        return chatService.searchUsers(query, currentUser.user());
-    }
-
     @PostMapping("/rooms")
     @ResponseStatus(HttpStatus.CREATED)
     ChatRoomDTO createChatRoom(@Valid @RequestBody NewChatRoomDTO chatRoom,
