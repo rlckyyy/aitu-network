@@ -70,7 +70,7 @@ public class AuthService {
         var user = (CustomUserDetails) customUserDetailsService.
                 loadUserByUsername(request.email());
         if (!user.user().isEnabled()) {
-            throw new UnauthorizedException("Account is not confirmed");
+            throw new UnauthorizedException("Account is not confirmed, check your mail!");
         }
         var jwt = jwtService.generateToken(user);
         log.info("User {} logged in", request.email());
