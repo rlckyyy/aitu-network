@@ -30,6 +30,7 @@ jobs:
       - name: Save target directory
         uses: actions/upload-artifact@v4
         with:
+          retention-days: 1
           name: target-files
           path: target/
 
