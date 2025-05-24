@@ -15,6 +15,7 @@ import aitu.network.aitunetwork.model.enums.ConnectionStatus;
 import aitu.network.aitunetwork.model.mapper.UserMapper;
 import aitu.network.aitunetwork.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -31,6 +32,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private static final Function<User, String> destinationFunction
@@ -111,6 +113,7 @@ public class UserService {
     }
 
     public List<User> searchUsers(String query) {
+        log.info("Query {}", query);
         return userRepository.findAllByEmailContainsIgnoreCaseOrUsernameContainsIgnoreCase(query, query);
     }
 
