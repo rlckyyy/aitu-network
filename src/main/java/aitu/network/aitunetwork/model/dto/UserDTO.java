@@ -2,6 +2,7 @@ package aitu.network.aitunetwork.model.dto;
 
 import aitu.network.aitunetwork.model.entity.Avatar;
 import aitu.network.aitunetwork.model.entity.UserStatusDetails;
+import aitu.network.aitunetwork.model.enums.AccessType;
 import aitu.network.aitunetwork.model.enums.Role;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import jakarta.validation.constraints.Email;
@@ -24,4 +25,5 @@ public class UserDTO {
     private List<String> friendList;
     @JsonUnwrapped
     private UserStatusDetails statusDetails;
+    private AccessType accessType;
 }
