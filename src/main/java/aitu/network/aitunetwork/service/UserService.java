@@ -3,6 +3,7 @@ package aitu.network.aitunetwork.service;
 
 import aitu.network.aitunetwork.common.exception.ConflictException;
 import aitu.network.aitunetwork.common.exception.EntityNotFoundException;
+import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.model.dto.UserShortDTO;
 import aitu.network.aitunetwork.model.dto.UserUpdateDTO;
 import aitu.network.aitunetwork.model.dto.chat.ChatRoomDTO;
@@ -112,9 +113,13 @@ public class UserService {
                 );
     }
 
-    public List<User> searchUsers(String query) {
+    public List<User> searchUsers(String query, CustomUserDetails userDetails) {
         log.info("Query {}", query);
-        return userRepository.findAllByEmailContainsIgnoreCaseOrUsernameContainsIgnoreCase(query, query);
+        return userRepository
+                .findAllByEmailContainsIgnoreCaseOrUsernameContainsIgnoreCase(query, query)
+                .stream()
+                .filter(user -> userDetails == null || !user.getId().equals(userDetails.user().getId()))
+                .collect(Collectors.toList());
     }
 
     public void connectUser(User user) {

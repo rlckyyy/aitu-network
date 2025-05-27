@@ -5,6 +5,7 @@ import aitu.network.aitunetwork.common.annotations.CurrentUser;
 import aitu.network.aitunetwork.common.exception.UnauthorizedException;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -26,12 +27,20 @@ public class CurrentUserMethodResolver implements HandlerMethodArgumentResolver 
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) {
+        CurrentUser currentUserAnnotation = parameter.getParameterAnnotation(CurrentUser.class);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+        if (authentication != null &&
+                authentication.isAuthenticated() &&
+                authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+
             return userDetails;
-        } else {
+        }
+
+        if (currentUserAnnotation != null && currentUserAnnotation.required()) {
             throw new UnauthorizedException("User not authorized");
         }
+
+        return null;
     }
 }
