@@ -75,7 +75,6 @@ public class ChatService {
         );
 
         Aggregation aggregation = Aggregation.newAggregation(match, lookup, rootReplacement);
-
         return mongoTemplate.aggregate(aggregation, ChatRoom.class, ChatRoomsWithMessages.class).getMappedResults();
     }
 
