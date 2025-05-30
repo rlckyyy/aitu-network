@@ -53,4 +53,5 @@ jobs:
             docker run -d --name aitu-network --network aitu-net \
             -e SPRING_PROFILES_ACTIVE=default \
             -e SECURE_TALK_DOMAIN=https://aitunet.kz/api \
+            -e MAIL_PASS="${{ secrets.MAIL_PASSWORD }}" \
             -p 8080:8080 reluckyyy/aitu-network:latest

@@ -1,5 +1,6 @@
 package aitu.network.aitunetwork.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,6 +10,8 @@ import java.util.Properties;
 
 @Configuration
 public class MailConfig {
+    @Value("${mail.password}")
+    private String mailPassword;
 
     @Bean
     public JavaMailSender javaMailSender() {
@@ -16,7 +19,7 @@ public class MailConfig {
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
         mailSender.setUsername("reluckytryhrd@gmail.com");
-        mailSender.setPassword("talz arjo bzlq dpql");
+        mailSender.setPassword(mailPassword);
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
