@@ -36,7 +36,7 @@ public class UserController {
     }
 
     @GetMapping("/public/search")
-    List<User> searchUsers(@RequestParam String query, @CurrentUser CustomUserDetails userDetails) {
+    List<User> searchUsers(@RequestParam String query, @CurrentUser(required = false) CustomUserDetails userDetails) {
         return userService.searchUsers(query, userDetails);
     }
 
