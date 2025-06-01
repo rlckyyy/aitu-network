@@ -1,6 +1,5 @@
 package aitu.network.aitunetwork.service;
 
-
 import aitu.network.aitunetwork.common.exception.*;
 import aitu.network.aitunetwork.config.security.CustomUserDetails;
 import aitu.network.aitunetwork.config.security.CustomUserDetailsService;
@@ -9,6 +8,8 @@ import aitu.network.aitunetwork.model.dto.JwtResponse;
 import aitu.network.aitunetwork.model.dto.LoginRequest;
 import aitu.network.aitunetwork.model.dto.RegisterRequest;
 import aitu.network.aitunetwork.model.dto.TokenHolder;
+import aitu.network.aitunetwork.model.dto.chat.EncryptedPrivateKey;
+import aitu.network.aitunetwork.model.dto.chat.EncryptedPrivateKeyDto;
 import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.AccessType;
 import aitu.network.aitunetwork.model.enums.Role;
@@ -76,6 +77,38 @@ public class AuthService {
         var jwt = jwtService.generateToken(user);
         log.info("User {} logged in", request.email());
         return new JwtResponse(jwt);
+    }
+
+    public EncryptedPrivateKeyDto getEncryptedPrivateKey(String userEmail) {
+        User user = userRepository.findByIdOrEmail(userEmail)
+                .orElseThrow(() -> new NotFoundException(User.class, "email", userEmail));
+
+        EncryptedPrivateKey encryptedKey = user.getEncryptedPrivateKey();
+        if (encryptedKey == null) {
+            throw new NotFoundException("Encrypted private key not found for user");
+        }
+
+        return new EncryptedPrivateKeyDto(
+                encryptedKey.getEncryptedKey(),
+                encryptedKey.getSalt(),
+                encryptedKey.getIv()
+        );
+    }
+
+    // TODO реализовать функционал для этого. Пока не использовать. Изменение пароля сломает чат
+    //  если зайти потом с другого браузера или устройства
+    public void updateEncryptedPrivateKey(String userEmail, EncryptedPrivateKeyDto newEncryptedKey) {
+        User user = userRepository.findByIdOrEmail(userEmail)
+                .orElseThrow(() -> new NotFoundException(User.class, "email", userEmail));
+
+        EncryptedPrivateKey encryptedPrivateKey = EncryptedPrivateKey.builder()
+                .encryptedKey(newEncryptedKey.encryptedKey())
+                .salt(newEncryptedKey.salt())
+                .iv(newEncryptedKey.iv())
+                .build();
+
+        user.setEncryptedPrivateKey(encryptedPrivateKey);
+        userRepository.save(user);
     }
 
     public void confirmAccount(String token) {
@@ -146,6 +179,17 @@ public class AuthService {
         if (!EncryptionUtils.validatePublicKey(userDTO.publicKey())) {
             throw new BadRequestException("Invalid public key format");
         }
+
+        if (userDTO.encryptedPrivateKeyDto() == null) {
+            throw new BadRequestException("Encrypted private key is required");
+        }
+
+        EncryptedPrivateKey encryptedPrivateKey = EncryptedPrivateKey.builder()
+                .encryptedKey(userDTO.encryptedPrivateKeyDto().encryptedKey())
+                .salt(userDTO.encryptedPrivateKeyDto().salt())
+                .iv(userDTO.encryptedPrivateKeyDto().iv())
+                .build();
+
         return User.builder()
                 .email(userDTO.email())
                 .username(userDTO.username())
@@ -157,6 +201,7 @@ public class AuthService {
                 .friendList(new ArrayList<>())
                 .accessType(AccessType.PUBLIC)
                 .publicKey(userDTO.publicKey())
+                .encryptedPrivateKey(encryptedPrivateKey)
                 .build();
     }
 

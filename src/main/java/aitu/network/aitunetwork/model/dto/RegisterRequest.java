@@ -1,9 +1,10 @@
 package aitu.network.aitunetwork.model.dto;
 
+import aitu.network.aitunetwork.model.dto.chat.EncryptedPrivateKeyDto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
-public record RegisterRequest (
+public record RegisterRequest(
         @NotBlank
         String username,
         @Email
@@ -11,5 +12,7 @@ public record RegisterRequest (
         @NotBlank
         String password,
         @NotBlank
-        String publicKey
-) {}
+        String publicKey,
+        EncryptedPrivateKeyDto encryptedPrivateKeyDto
+) {
+}

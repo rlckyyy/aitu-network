@@ -1,6 +1,7 @@
 package aitu.network.aitunetwork.model.entity;
 
 import aitu.network.aitunetwork.model.dto.TokenHolder;
+import aitu.network.aitunetwork.model.dto.chat.EncryptedPrivateKey;
 import aitu.network.aitunetwork.model.enums.AccessType;
 import aitu.network.aitunetwork.model.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -41,6 +42,8 @@ public class User extends BaseEntity implements Serializable {
     private UserStatusDetails statusDetails;
     private AccessType accessType;
     private String publicKey;
+    @JsonIgnore
+    private EncryptedPrivateKey encryptedPrivateKey;
 
 
     public void addFriendList(User user) {
