@@ -23,11 +23,22 @@ spring:
     multipart:
       max-file-size: 30MB
       max-request-size: 30MB
+  mail:
+    host: "smtp.gmail.com"
+    port: 587
+    username: "reluckytryhrd@gmail.com"
+    password: ${MAIL_PASS:xxxxxxxxxxx}
+    properties:
+      mail:
+        transport:
+          protocol: smtp
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+        debug: true
 logging:
   level:
     org.springframework.security: info
 token:
   key: 53A73E5F1C4E0A2D3B5F2D784E6A1B423D6F247D1F6E5C3A596D635A75327855
-
-mail:
-  password: ${MAIL_PASS:xxxxxxxxxxx}

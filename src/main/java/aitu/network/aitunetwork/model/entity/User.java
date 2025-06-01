@@ -40,6 +40,8 @@ public class User extends BaseEntity implements Serializable {
     @Unwrapped(onEmpty = Unwrapped.OnEmpty.USE_NULL)
     private UserStatusDetails statusDetails;
     private AccessType accessType;
+    private String publicKey;
+
 
     public void addFriendList(User user) {
         if (user != null && user.getFriendList() != null) {

@@ -9,5 +9,7 @@ public record RegisterRequest (
         @Email
         String email,
         @NotBlank
-        String password
+        String password,
+        @NotBlank
+        String publicKey
 ) {}

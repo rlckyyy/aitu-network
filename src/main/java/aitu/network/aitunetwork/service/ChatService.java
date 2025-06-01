@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -40,15 +41,42 @@ public class ChatService {
     public void processMessage(
             ChatMessage newChatMessage
     ) {
-        ChatMessage chatMessage = chatMessageService.save(newChatMessage);
-        ChatRoom chatRoom = chatRoomService.findChatRoom(chatMessage.getChatId());
+        if (newChatMessage.getEncryptedContent() == null || newChatMessage.getEncryptedKeys() == null) {
+            throw new IllegalArgumentException("Message must be encrypted");
+        }
+        ChatRoom chatRoom = chatRoomService.findChatRoom(newChatMessage.getChatId());
+        User sender = userService.getById(newChatMessage.getSenderId());
+        if (!chatRoom.getParticipants().contains(sender)) {
+            throw new RuntimeException("User is not a participant of this chat");
+        }
+        ChatMessage savedMessage = chatMessageService.save(newChatMessage);
+
         if (chatRoom.getEmpty()) {
             chatRoom = chatRoomService.markChatRoom(chatRoom, false);
         }
 
-        WSMessage wsMessage = new WSMessage(WSMessageType.CHAT_MESSAGE, chatMessage);
-        chatMessageService.sendWSMessageToUsers(chatRoom.getParticipants().stream().map(User::getId).toList(), wsMessage);
+        WSMessage wsMessage = new WSMessage(WSMessageType.CHAT_MESSAGE, savedMessage);
+        chatMessageService.sendWSMessageToUsers(
+                chatRoom.getParticipants().stream().map(User::getId).toList(),
+                wsMessage
+        );
     }
+
+    public Map<String, String> getChatParticipantsPublicKeys(String chatId, String userId) {
+        ChatRoom chatRoom = chatRoomService.findChatRoom(chatId);
+        User user = userService.getById(userId);
+
+        if (!chatRoom.getParticipants().contains(user)) {
+            throw new RuntimeException("User is not a participant of this chat");
+        }
+
+        return chatRoom.getParticipants().stream()
+                .collect(Collectors.toMap(
+                        User::getId,
+                        User::getPublicKey
+                ));
+    }
+
 
     public Map<String, Object> countNewMessages(String chatId, User user) {
         return Map.of("count", chatMessageService.countNewMessages(chatId, user));
@@ -106,7 +134,9 @@ public class ChatService {
         }
         String fileId = fileService.uploadFile(file);
         String link = fileService.getLinkForResource(fileId);
-        chatMessage.setContent(link);
+
+        // TODO: Зашифровать ссылку на файл
+        // chatMessage.setContent(link); // Deprecated
         return chatMessageService.save(chatMessage);
     }
 

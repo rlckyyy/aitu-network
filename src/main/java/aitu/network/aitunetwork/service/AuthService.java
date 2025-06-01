@@ -13,6 +13,7 @@ import aitu.network.aitunetwork.model.entity.User;
 import aitu.network.aitunetwork.model.enums.AccessType;
 import aitu.network.aitunetwork.model.enums.Role;
 import aitu.network.aitunetwork.repository.UserRepository;
+import aitu.network.aitunetwork.util.EncryptionUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -142,6 +143,9 @@ public class AuthService {
     }
 
     private User mapUserDTOToUser(RegisterRequest userDTO) {
+        if (!EncryptionUtils.validatePublicKey(userDTO.publicKey())) {
+            throw new BadRequestException("Invalid public key format");
+        }
         return User.builder()
                 .email(userDTO.email())
                 .username(userDTO.username())
@@ -152,6 +156,7 @@ public class AuthService {
                         LocalDateTime.now().plusHours(24)))
                 .friendList(new ArrayList<>())
                 .accessType(AccessType.PUBLIC)
+                .publicKey(userDTO.publicKey())
                 .build();
     }
 

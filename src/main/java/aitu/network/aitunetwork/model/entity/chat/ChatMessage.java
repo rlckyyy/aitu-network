@@ -14,6 +14,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -29,7 +30,8 @@ public class ChatMessage extends BaseEntity implements Serializable {
     private String chatId;
     @NotBlank(message = "errors.400.chats.senders.id")
     private String senderId;
-    private String content;
+    private Map<String, String> encryptedContent;
+    private Map<String, String> encryptedKeys;
     private short length;
     private MessageStatus status;
     private MessageType type;

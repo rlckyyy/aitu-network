@@ -36,6 +36,17 @@ public class ChatController {
     private final ChatService chatService;
     private final UserFetcher userFetcher;
 
+    @GetMapping("/rooms/{chatId}/keys")
+    public ResponseEntity<Map<String, String>> getChatParticipantsKeys(
+            @PathVariable String chatId,
+            @CurrentUser CustomUserDetails userDetails
+    ) {
+        return ResponseEntity.ok(chatService.getChatParticipantsPublicKeys(
+                chatId,
+                userDetails.user().getId()
+        ));
+    }
+
     @GetMapping("/rooms/{id}/messages/count")
     ResponseEntity<Map<String, Object>> countNewMessages(
             @PathVariable String id,
