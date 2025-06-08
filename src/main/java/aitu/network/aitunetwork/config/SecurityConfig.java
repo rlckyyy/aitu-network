@@ -52,9 +52,9 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint authenticationEntryPoint) throws Exception {
-        if (isLocal()){
-            http.authorizeHttpRequests(authorize -> authorize.requestMatchers("/**").permitAll());
-        }
+//        if (isLocal()){
+//            http.authorizeHttpRequests(authorize -> authorize.requestMatchers("/**").permitAll());
+//        }
         return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
