@@ -107,7 +107,11 @@ public class PostService {
         }
 
         query.addCriteria(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
-        return mongoTemplate.find(query, Post.class);
+        return mongoTemplate.find(query, Post.class)
+                .stream()
+                .sorted(Comparator.comparing(Post::getCreatedAt,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
     }
 
     public Post updateDescription(Map<String, String> map, String id) {
