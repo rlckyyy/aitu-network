@@ -23,8 +23,6 @@ spring:
     multipart:
       max-file-size: 30MB
       max-request-size: 30MB
-  cache:
-    type: redis
   mail:
     host: "smtp.gmail.com"
     port: 587
