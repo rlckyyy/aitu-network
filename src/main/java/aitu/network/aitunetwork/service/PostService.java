@@ -13,7 +13,14 @@ import aitu.network.aitunetwork.model.enums.PostType;
 import aitu.network.aitunetwork.model.event.listener.model.PostEvent;
 import aitu.network.aitunetwork.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -25,18 +32,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class PostService {
+public class PostService implements ApplicationContextAware {
     private final PostRepository repository;
     private final FileService fileService;
     private final MongoTemplate mongoTemplate;
     private final GroupService groupService;
     private final UserService userService;
     private final ApplicationEventPublisher publisher;
+    private Supplier<PostService> self;
 
     public Post createPost(PostDTO postDTO, List<MultipartFile> files, CustomUserDetails userDetails) {
         Post.PostBuilder postBuilder = Post.builder()
@@ -62,7 +72,9 @@ public class PostService {
         return post;
     }
 
+    @Cacheable(value = "posts", key = "#id")
     public Post findById(String id) {
+        log.info("test caching");
         return repository.findById(id)
                 .orElseThrow(() ->
                         new EntityNotFoundException(Post.class, id));
@@ -107,8 +119,9 @@ public class PostService {
         return mongoTemplate.find(query, Post.class);
     }
 
+    @CachePut(value = "posts", key = "#id")
     public Post updateDescription(Map<String, String> map, String id) {
-        Post post = findById(id);
+        Post post = self.get().findById(id);
         String description = map.get("description");
         if (Objects.isNull(description) || description.isBlank()) {
             throw new ConflictException("Post content can not be blank or null");
@@ -118,7 +131,7 @@ public class PostService {
     }
 
     public Post deleteFiles(String postId, List<String> fileIds) {
-        Post post = findById(postId);
+        Post post = self.get().findById(postId);
         List<String> list = post
                 .getMediaFileIds()
                 .stream()
@@ -133,11 +146,14 @@ public class PostService {
         builder.resource(userDetails.getUsername());
     }
 
-
+    @CacheEvict(value = "posts", key = "#id")
     public void deletePost(String id) {
         Query query = new Query(Criteria.where("_id").is(id));
         Post post = mongoTemplate.findAndRemove(query, Post.class);
-        fileService.deleteFilesByLink(Objects.requireNonNull(post).getMediaFileIds());
+        if (post == null) {
+            throw new EntityNotFoundException(Post.class, id);
+        }
+        fileService.deleteFilesByLink(post.getMediaFileIds());
     }
 
     public void reactToPost(Reaction reaction) {
@@ -193,4 +209,8 @@ public class PostService {
         return Criteria.where("ownerId").in(allowedOwnerIds);
     }
 
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.self = () -> applicationContext.getBean(PostService.class);
+    }
 }

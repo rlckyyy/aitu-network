@@ -6,6 +6,7 @@ import aitu.network.aitunetwork.config.security.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -23,6 +24,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
@@ -33,6 +35,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final CustomJwtFilter jwtFilter;
+    private final Environment environment;
     private final static String[] ALLOW_ALL_MATCHER = new String[]{
             "/swagger-ui/**",
             "/swagger-resources/*",
@@ -49,6 +52,9 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http, CustomAuthenticationEntryPoint authenticationEntryPoint) throws Exception {
+        if (isLocal()){
+            http.authorizeHttpRequests(authorize -> authorize.requestMatchers("/**").permitAll());
+        }
         return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -101,5 +107,8 @@ public class SecurityConfig {
         authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return new ProviderManager(authProvider);
+    }
+    public boolean isLocal(){
+        return Arrays.asList(environment.getActiveProfiles()).contains("local");
     }
 }

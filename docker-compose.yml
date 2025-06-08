@@ -1,4 +1,14 @@
 services:
+  redis:
+    networks:
+      - aitu-net
+    image: redis:7.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
   mongodb:
     networks:
       - aitu-net
@@ -14,6 +24,7 @@ services:
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
 volumes:
   mongo_data:
+  redis_data:
 
 networks:
   aitu-net:
